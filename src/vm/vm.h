@@ -3,7 +3,7 @@
 #ifndef VM_H
 #define VM_H
 
-#define MEM_CELL_COUNT 0x0200    /* 512 memory cells, 2 bytes each - 1KiB */
+#define MEM_CELL_COUNT 0x0200    // 512 memory cells, 2 bytes each - 1KiB
 #define MAX_STACK_LENGTH 0x0014
 
 #define INSTRUCTION(OPCODE, PARA) ((OPCODE << 12) + PARA)
@@ -14,21 +14,22 @@ enum BOOL{
 };
 
 enum OPCODE{
-    PUSH,    /* Push Data into Stack */
-    POP,    /* Pop Data from Stock into Register */
-    ARITH,    /* Handle Arithmetic Operations */
-    AND,    /* Stack[SP-1] & Stack[SP-2] */
-    OR,    /* Stack[SP-1] | Stack[SP-2] */
-    NOT,    /* ~Stack[SP-1] */
-    BSHIFT,    /* Handle Bit Shift */
-    COMP,    /* Compare Stack[SP-1] and Stack[SP-2] */
-    LOADM,    /* Load from Memory to Top of the Stack */
-    LOADR,    /* Load from Register to Top of Stack */
-    STOREM,    /* Store into Memory from Top of the Stack */
-    STORER,    /* Store into Register from Top of the Stack */
-    GOTO,    /* Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = True */
-    IO,    /* Handle Input or Output */
-    HALT    /* Stop Execution */
+    PUSH,    // Push Data into Stack 
+    POP,    // Pop Data from Stock into Register 
+    DUP,    // Duplicate Stack[SP-1]
+    ARITH,    // Handle Arithmetic Operations 
+    AND,    // Stack[SP-1] & Stack[SP-2] 
+    OR,    // Stack[SP-1] | Stack[SP-2] 
+    NOT,    // ~Stack[SP-1] 
+    BSHIFT,    // Handle Bit Shift 
+    COMP,    // Compare Stack[SP-1] and Stack[SP-2] 
+    LOADM,    // Load from Memory to Top of the Stack 
+    LOADR,    // Load from Register to Top of Stack 
+    STOREM,    // Store into Memory from Top of the Stack 
+    STORER,    // Store into Register from Top of the Stack 
+    GOTO,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = True 
+    IO,    // Handle Input or Output 
+    HALT    // Stop Execution 
 };
 
 enum ARITHMETIC{
@@ -49,14 +50,14 @@ enum ESCAPE_SEQUENCES{
 
 enum REGISTERS{
     Ra,
-    Rb,    /* a, b, c - General Purpose Registers */
+    Rb,    // a, b, c - General Purpose Registers 
     Rc,
-    Rsp,    /* Stack Pointer */
-    Rip,    /* Instruction Pointer */
-    Rcom,    /* Comparison Data Storage */
-    Rcbindx,    /* Code Base Index */
-    Rhlt,    /* Machine Halt Status */
-    R_COUNT    /* Number of Registers */
+    Rsp,    // Stack Pointer 
+    Rip,    // Instruction Pointer 
+    Rcom,    // Comparison Data Storage 
+    Rcbindx,    // Code Base Index 
+    Rhlt,    // Machine Halt Status 
+    R_COUNT    // Number of Registers 
 };
 
 uint16_t stack[MAX_STACK_LENGTH];

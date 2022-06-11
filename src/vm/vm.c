@@ -11,7 +11,7 @@ void handle_input_output(uint16_t instruction){
                 case OUTPUT:
                     switch(instruction & 0x0030){
                         case INTEGER:
-                            printf("%d", reg_data[Ra]);    /* Integer Output */
+                            printf("%d", stack[SP-1]);
                             break;
                     }
                     break;
@@ -53,6 +53,10 @@ void execute_instruction(uint16_t instruction){
             break;
         case POP:
             reg_data[Ra] = stack[--SP];
+            break;
+        case DUP:
+            stack[SP] = stack[SP-1];
+            ++SP;
             break;
         case ARITH:
             handle_arithmetic(instruction);
