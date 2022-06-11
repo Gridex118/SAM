@@ -1,6 +1,6 @@
 /* Testing the instruction processing */
 
-#include "../vm/vm.h"
+#include "../src/vm/vm.h"
 #include <stdlib.h>
 #include <string.h>
 
