@@ -9,11 +9,12 @@
 #define INSTRUCTION(OPCODE, PARA) ((OPCODE << 12) + PARA)
 #define MEGRE_PARA(PARA1, PARA2) ((PARA1 << 6) + PARA2)
 
-#define TRUE 1
-#define FALSE 0
+enum BOOL{
+    FALSE, TRUE
+};
 
 enum OPCODE{
-    PUSH = 0,    /* Push Data into Stack */
+    PUSH,    /* Push Data into Stack */
     POP,    /* Pop Data from Stock into Register */
     ARITH,    /* Handle Arithmetic Operations */
     AND,    /* Stack[SP-1] & Stack[SP-2] */
@@ -31,21 +32,15 @@ enum OPCODE{
 };
 
 enum ARITHMETIC{
-    ADD = 0,
-    SUB,
-    MULT,
-    DIV
+    ADD, SUB, MULT, DIV
 };
 
 enum IO_PARA{
-    INPUT = 0,
-    OUTPUT,
-    ESEQ
+    INPUT, OUTPUT, ESEQ
 };
 
 enum OUTPUT{
-    INTEGER = 0,
-    STRING
+    INTEGER, STRING
 };
 
 enum ESCAPE_SEQUENCES{
@@ -54,7 +49,7 @@ enum ESCAPE_SEQUENCES{
 };
 
 enum REGISTERS{
-    Ra = 0,
+    Ra,
     Rb,    /* a, b, c - General Purpose Registers */
     Rc,
     Rsp,    /* Stack Pointer */
@@ -76,7 +71,7 @@ uint16_t reg_data[R_COUNT];
 
 #define MACHINE_IS_RUNNING (reg_data[Rhlt] == FALSE)
 
-#define OPCODE(instruction) instruction >> 12
+#define OPCODE(instruction) (instruction >> 12)
 
 void execute_instruction(uint16_t instruction);
 
