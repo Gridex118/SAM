@@ -59,17 +59,16 @@ void execute_instruction(uint16_t instruction){
             --SP;
             break;
         case AND:
+            stack[SP-2] = (stack[SP-1] & stack[SP-2]);
+            --SP;
+            break;
         case OR:
+            stack[SP-2] = (stack[SP-1] | stack[SP-2]);
+            --SP;
+            break;
         case NOT:
             stack[SP-1] = ~stack[SP-1];
             break;
-        case BSHIFT:
-        case COMP:
-        case LOADM:
-        case LOADR:
-        case STOREM:
-        case STORER:
-        case GOTO:
         case IO:
             handle_input_output(instruction);
             break;
@@ -82,4 +81,10 @@ void execute_instruction(uint16_t instruction){
         reg_data[Rhlt] = TRUE;
     }
 
+}
+
+void run_machine(){
+    while (MACHINE_IS_RUNNING){
+        execute_instruction(code_store[CODE_BASE_INDEX + IP]);
+    }
 }

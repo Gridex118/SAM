@@ -44,8 +44,7 @@ enum OUTPUT{
 };
 
 enum ESCAPE_SEQUENCES{
-    NEWLINE = 0,
-    RETURN_CARRIAGE
+    NEWLINE = 0, RETURN_CARRIAGE
 };
 
 enum REGISTERS{
@@ -74,5 +73,6 @@ uint16_t reg_data[R_COUNT];
 #define OPCODE(instruction) (instruction >> 12)
 
 void execute_instruction(uint16_t instruction);
+void run_machine();
 
 #endif
