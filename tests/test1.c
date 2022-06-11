@@ -25,8 +25,6 @@ extern uint16_t reg_data[];
 int main(){
 
     memcpy(&code_store, &instructions, sizeof(instructions));
-
-    while(MACHINE_IS_RUNNING){
-        execute_instruction(code_store[CODE_BASE_INDEX + reg_data[Rip]]);
-    }
+    run_machine();
+    
 }
