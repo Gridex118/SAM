@@ -1,31 +1,27 @@
 #include "./vm.h"
 #include <stdio.h>
 
-extern uint16_t stack[];
-extern uint16_t var_store[];
-extern uint16_t code_store[];
-extern uint16_t reg_data[];
-
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
-                case OUTPUT:
-                    switch(instruction & 0x0030){
-                        case INTEGER:
-                            printf("%d", stack[SP-1]);
-                            break;
-                    }
-                    break;
-                case ESEQ:
-                    switch(instruction & 0x0030){
-                        case NEWLINE:
-                            putchar('\n');
-                            break;
-                        case RETURN_CARRIAGE:
-                            putchar('\r');
-                            break;
-                    }
+        case OUTPUT:
+            switch(instruction & 0x0030){
+                case INTEGER:
+                    printf("%d", stack[SP-1]);
                     break;
             }
+            --SP;
+            break;
+        case ESEQ:
+            switch(instruction & 0x0030){
+                case NEWLINE:
+                    putchar('\n');
+                    break;
+                case RETURN_CARRIAGE:
+                    putchar('\r');
+                    break;
+            }
+            break;
+    }
 }
 
 void handle_arithmetic(uint16_t instruction){
@@ -41,6 +37,23 @@ void handle_arithmetic(uint16_t instruction){
             break;
         case DIV:
             stack[SP-2] = (uint16_t) (stack[SP-1]/stack[SP-2]);
+            break;
+    }
+}
+
+void handle_reg_storage(uint16_t reg_index){
+    switch(reg_index){
+        case Ra:
+        case Rb:
+        case Rc:
+        case Rip:
+        case Rcbindx:
+            reg_data[reg_index] = stack[SP--];
+            break;
+        case Rhlt:
+        case Rerr:
+        case Rcom:
+            reg_data[Rerr] = ILLEGAL_PARAMETER;
             break;
     }
 }
@@ -72,6 +85,12 @@ void execute_instruction(uint16_t instruction){
             break;
         case NOT:
             stack[SP-1] = ~stack[SP-1];
+            break;
+        case STORER:
+            handle_reg_storage(instruction & 0x0FFF);
+            break;
+        case LOADR:
+            stack[SP++] = reg_data[instruction & 0xFFF];
             break;
         case IO:
             handle_input_output(instruction);

@@ -6,6 +6,8 @@
 #define MEM_CELL_COUNT 0x0200    // 512 memory cells, 2 bytes each - 1KiB
 #define MAX_STACK_LENGTH 0x0014
 
+#define len_uint16(arr) (sizeof(arr) / sizeof(uint16_t))
+
 #define INSTRUCTION(OPCODE, PARA) ((OPCODE << 12) + PARA)
 #define MEGRE_PARA(PARA1, PARA2) ((PARA1 << 6) + PARA2)
 
@@ -45,7 +47,7 @@ enum OUTPUT{
 };
 
 enum ESCAPE_SEQUENCES{
-    NEWLINE = 0, RETURN_CARRIAGE
+    NEWLINE, RETURN_CARRIAGE
 };
 
 enum REGISTERS{
@@ -56,8 +58,13 @@ enum REGISTERS{
     Rip,    // Instruction Pointer 
     Rcom,    // Comparison Data Storage 
     Rcbindx,    // Code Base Index 
-    Rhlt,    // Machine Halt Status 
+    Rhlt,    // Machine Halt Status
+    Rerr,    // Error Code Register
     R_COUNT    // Number of Registers 
+};
+
+enum ERROR_CODES{
+    ILLEGAL_PARAMETER = 1
 };
 
 uint16_t stack[MAX_STACK_LENGTH];
