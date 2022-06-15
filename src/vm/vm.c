@@ -21,6 +21,16 @@ void handle_input_output(uint16_t instruction){
                     break;
             }
             break;
+        case PRINT_ERROR:
+            switch(stack[SP-1]){
+                case ILLEGAL_PARAMETER:
+                    printf("Illegal Paramater");
+                    break;
+            }
+            --SP;
+            break;
+        default:
+            reg_data[Rerr] = ILLEGAL_PARAMETER;
     }
 }
 
