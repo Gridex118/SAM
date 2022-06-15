@@ -4,7 +4,7 @@
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
         case OUTPUT:
-            switch(instruction & 0x0030){
+            switch(instruction & 0x003F){
                 case INTEGER:
                     printf("%d", stack[SP-1]);
                     break;
@@ -12,7 +12,7 @@ void handle_input_output(uint16_t instruction){
             --SP;
             break;
         case ESEQ:
-            switch(instruction & 0x0030){
+            switch(instruction & 0x003F){
                 case NEWLINE:
                     putchar('\n');
                     break;
@@ -38,6 +38,27 @@ void handle_arithmetic(uint16_t instruction){
         case DIV:
             stack[SP-2] = (uint16_t) (stack[SP-1]/stack[SP-2]);
             break;
+        default:
+            reg_data[Rerr] = ILLEGAL_PARAMETER;
+            break;
+    }
+}
+
+void handle_logic(uint16_t instruction){
+    switch(instruction & 0x0FFF){
+        case AND:
+            stack[SP-2] = stack[SP-1] & stack[SP-2];
+            --SP;
+            break;
+        case OR:
+            stack[SP-2] = stack[SP-1] | stack[SP-2];
+            --SP;
+            break;
+        case NOT:
+            stack[SP-1] = ~stack[SP-1];
+            break;
+        default:
+            reg_data[Rerr] = ILLEGAL_PARAMETER;
     }
 }
 
@@ -53,6 +74,7 @@ void handle_reg_storage(uint16_t reg_index){
         case Rhlt:
         case Rerr:
         case Rcom:
+        default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
             break;
     }
@@ -75,16 +97,8 @@ void execute_instruction(uint16_t instruction){
             handle_arithmetic(instruction);
             --SP;
             break;
-        case AND:
-            stack[SP-2] = (stack[SP-1] & stack[SP-2]);
-            --SP;
-            break;
-        case OR:
-            stack[SP-2] = (stack[SP-1] | stack[SP-2]);
-            --SP;
-            break;
-        case NOT:
-            stack[SP-1] = ~stack[SP-1];
+        case LOGIC:
+            handle_logic(instruction);
             break;
         case STORER:
             handle_reg_storage(instruction & 0x0FFF);

@@ -20,9 +20,7 @@ enum OPCODE{
     POP,    // Pop Data from Stock into Register 
     DUP,    // Duplicate Stack[SP-1]
     ARITH,    // Handle Arithmetic Operations 
-    AND,    // Stack[SP-1] & Stack[SP-2] 
-    OR,    // Stack[SP-1] | Stack[SP-2] 
-    NOT,    // ~Stack[SP-1] 
+    LOGIC,    // Handle Logical Operations
     BSHIFT,    // Handle Bit Shift 
     COMP,    // Compare Stack[SP-1] and Stack[SP-2] 
     LOADM,    // Load from Memory to Top of the Stack 
@@ -34,8 +32,12 @@ enum OPCODE{
     HALT    // Stop Execution 
 };
 
-enum ARITHMETIC{
+enum ARITHMETIC_OPERATIONS{
     ADD, SUB, MULT, DIV
+};
+
+enum LOGICAL_OPERATIONS{
+    AND, OR, NOT
 };
 
 enum IO_PARA{
