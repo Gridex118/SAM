@@ -25,7 +25,8 @@ enum OPCODE{
     COMP,    // Compare Stack[SP-1] and Stack[SP-2] 
     LOADM,    // Load from Memory to Top of the Stack 
     LOADR,    // Load from Register to Top of Stack 
-    STOREM,    // Store into Memory from Top of the Stack 
+    STOREM,    // Store into Memory from Top of the Stack
+    STOREC,    // Store into Code Space from Top of the Stack
     STORER,    // Store into Register from Top of the Stack 
     GOTO,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = True 
     IO,    // Handle Input or Output 
@@ -41,7 +42,7 @@ enum LOGICAL_OPERATIONS{
 };
 
 enum IO_PARA{
-    INPUT, OUTPUT, ESEQ, PRINT_ERROR
+    INPUT, PRINT, PRINT_ESEQ, PRINT_ERROR
 };
 
 enum OUTPUT{
@@ -66,7 +67,7 @@ enum REGISTERS{
 };
 
 enum ERROR_CODES{
-    ILLEGAL_PARAMETER = 1
+    ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED
 };
 
 uint16_t stack[MAX_STACK_LENGTH];

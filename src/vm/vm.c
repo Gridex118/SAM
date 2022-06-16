@@ -3,7 +3,7 @@
 
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
-        case OUTPUT:
+        case PRINT:
             switch(instruction & 0x003F){
                 case INTEGER:
                     printf("%d", stack[SP-1]);
@@ -11,7 +11,7 @@ void handle_input_output(uint16_t instruction){
             }
             --SP;
             break;
-        case ESEQ:
+        case PRINT_ESEQ:
             switch(instruction & 0x003F){
                 case NEWLINE:
                     putchar('\n');
@@ -22,9 +22,12 @@ void handle_input_output(uint16_t instruction){
             }
             break;
         case PRINT_ERROR:
-            switch(stack[SP-1]){
+            switch(reg_data[Rerr]){
                 case ILLEGAL_PARAMETER:
                     printf("Illegal Paramater");
+                    break;
+                case REGISTER_ACCESS_DENIED:
+                    printf("Could not access register");
                     break;
             }
             --SP;
@@ -85,7 +88,7 @@ void handle_reg_storage(uint16_t reg_index){
         case Rerr:
         case Rcom:
         default:
-            reg_data[Rerr] = ILLEGAL_PARAMETER;
+            reg_data[Rerr] = REGISTER_ACCESS_DENIED;
             break;
     }
 }
