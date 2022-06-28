@@ -42,7 +42,7 @@ enum LOGICAL_OPERATIONS{
 };
 
 enum IO_PARA{
-    INPUT, PRINT, PRINT_ESEQ, PRINT_ERROR
+    INPUT, PRINT, PRINT_ESEQ
 };
 
 enum OUTPUT{
@@ -60,10 +60,12 @@ enum REGISTERS{
     Rsp,    // Stack Pointer 
     Rip,    // Instruction Pointer 
     Rcom,    // Comparison Data Storage 
-    Rcbindx,    // Code Base Index 
+    Rbindx,    // Base Index 
     Rhlt,    // Machine Halt Status
     Rerr,    // Error Code Register
-    R_COUNT    // Number of Registers 
+    R_COUNT,    // Number of Registers 
+    Rcbindx,    // Code Base Index
+    Rvbindx,    // Variable Store Base Index
 };
 
 enum ERROR_CODES{
@@ -77,7 +79,7 @@ uint16_t reg_data[R_COUNT];
 
 #define IP reg_data[Rip]
 #define SP reg_data[Rsp]
-#define CODE_BASE_INDEX reg_data[Rcbindx]
+#define CODE_BASE_INDEX (reg_data[Rbindx] & 0x00FF)
 
 #define MACHINE_IS_RUNNING (reg_data[Rhlt] == FALSE)
 

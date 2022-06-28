@@ -1,6 +1,8 @@
 #include "./vm.h"
 #include <stdio.h>
 
+//TODO: Fix base index registers
+
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
         case PRINT:
@@ -20,17 +22,6 @@ void handle_input_output(uint16_t instruction){
                     putchar('\r');
                     break;
             }
-            break;
-        case PRINT_ERROR:
-            switch(reg_data[Rerr]){
-                case ILLEGAL_PARAMETER:
-                    printf("Illegal Paramater");
-                    break;
-                case REGISTER_ACCESS_DENIED:
-                    printf("Could not access register");
-                    break;
-            }
-            --SP;
             break;
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
@@ -81,14 +72,35 @@ void handle_reg_storage(uint16_t reg_index){
         case Rb:
         case Rc:
         case Rip:
-        case Rcbindx:
             reg_data[reg_index] = stack[SP--];
+            break;
+        case Rcbindx:
+            reg_data[Rbindx] &= 0xFF00;
+            reg_data[Rbindx] |= stack[SP--];
+            break;
+        case Rvbindx:
+            reg_data[Rbindx] &= 0x00FF;
+            reg_data[Rbindx] |= stack[SP--];
             break;
         case Rhlt:
         case Rerr:
         case Rcom:
         default:
             reg_data[Rerr] = REGISTER_ACCESS_DENIED;
+            break;
+    }
+}
+
+void handle_reg_load(uint16_t reg_index){
+    switch(reg_index){
+        case Rcbindx:
+            stack[SP++] = (reg_data[Rbindx] & 0x00FF);
+            break;
+        case Rvbindx:
+            stack[SP++] = (reg_data[Rbindx] >> 8);
+            break;
+        default:
+            stack[SP++] = reg_data[reg_index];
             break;
     }
 }
@@ -117,7 +129,7 @@ void execute_instruction(uint16_t instruction){
             handle_reg_storage(instruction & 0x0FFF);
             break;
         case LOADR:
-            stack[SP++] = reg_data[instruction & 0xFFF];
+            handle_reg_load(instruction & 0x0FFF);
             break;
         case IO:
             handle_input_output(instruction);
@@ -127,7 +139,7 @@ void execute_instruction(uint16_t instruction){
             break;
     }
 
-    if ((reg_data[Rcbindx] + ++IP) >= MEM_CELL_COUNT/2){
+    if ((CODE_BASE_INDEX + ++IP) >= MEM_CELL_COUNT/2){
         reg_data[Rhlt] = TRUE;
     }
 
