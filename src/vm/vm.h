@@ -41,6 +41,10 @@ enum LOGICAL_OPERATIONS{
     AND, OR, NOT
 };
 
+enum BSHIFT_PARA{
+    LEFT, RIGHT
+};
+
 enum IO_PARA{
     INPUT, PRINT, PRINT_ESEQ
 };

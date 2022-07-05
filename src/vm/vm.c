@@ -1,8 +1,6 @@
 #include "./vm.h"
 #include <stdio.h>
 
-//TODO: Fix base index registers
-
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
         case PRINT:
@@ -66,6 +64,22 @@ void handle_logic(uint16_t instruction){
     }
 }
 
+void handle_bit_shift(uint16_t Instruction){
+    uint16_t direction = ((Instruction & 0x0F00) >> 8);
+    uint16_t count = (Instruction & 0x00FF);
+    switch(direction){
+        case LEFT:
+            stack[SP-1] = (stack[SP-1] << count);
+            break;
+        case RIGHT:
+            stack[SP-1] = (stack[SP-1] >> count);
+            break;
+        default:
+            reg_data[Rerr] = ILLEGAL_PARAMETER;
+    }
+    SP++;
+}
+
 void handle_reg_storage(uint16_t reg_index){
     switch(reg_index){
         case Ra:
@@ -124,6 +138,9 @@ void execute_instruction(uint16_t instruction){
             break;
         case LOGIC:
             handle_logic(instruction);
+            break;
+        case BSHIFT:
+            handle_bit_shift(instruction);
             break;
         case STORER:
             handle_reg_storage(instruction & 0x0FFF);
