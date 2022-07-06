@@ -22,7 +22,7 @@ enum OPCODE{
     ARITH,    // Handle Arithmetic Operations 
     LOGIC,    // Handle Logical Operations
     BSHIFT,    // Handle Bit Shift 
-    COMP,    // Compare Stack[SP-1] and Stack[SP-2] 
+    COMP,    // Compare Stack[SP-2] and Stack[SP-1] 
     LOADM,    // Load from Memory to Top of the Stack 
     LOADR,    // Load from Register to Top of Stack 
     STOREM,    // Store into Memory from Top of the Stack
@@ -43,6 +43,10 @@ enum LOGICAL_OPERATIONS{
 
 enum BSHIFT_PARA{
     LEFT, RIGHT
+};
+
+enum COMPARISON_PARA{
+    EQL, LS, GR
 };
 
 enum IO_PARA{

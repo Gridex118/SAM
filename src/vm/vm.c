@@ -64,9 +64,9 @@ void handle_logic(uint16_t instruction){
     }
 }
 
-void handle_bit_shift(uint16_t Instruction){
-    uint16_t direction = ((Instruction & 0x0F00) >> 8);
-    uint16_t count = (Instruction & 0x00FF);
+void handle_bit_shift(uint16_t instruction){
+    uint16_t direction = ((instruction & 0x0F00) >> 8);
+    uint16_t count = (instruction & 0x00FF);
     switch(direction){
         case LEFT:
             stack[SP-1] = (stack[SP-1] << count);
@@ -77,7 +77,24 @@ void handle_bit_shift(uint16_t Instruction){
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
     }
-    SP++;
+}
+
+void handle_comparison(uint16_t instruction){
+    switch(instruction & 0x0FFF){
+        case EQL:
+            reg_data[Rcom] = (stack[--SP] == stack[--SP]);
+            break;
+        // Since stack[SP-2] is the first operand, the comparison signs must be reversed
+        case LS:
+            reg_data[Rcom] = (stack[--SP] > stack[--SP]);
+            break;
+        case GR:
+            reg_data[Rcom] = (stack[--SP] < stack[--SP]);
+            break;
+        default:
+            reg_data[Rcom] = ILLEGAL_PARAMETER;
+    }
+    SP -= 2;
 }
 
 void handle_reg_storage(uint16_t reg_index){
@@ -141,6 +158,9 @@ void execute_instruction(uint16_t instruction){
             break;
         case BSHIFT:
             handle_bit_shift(instruction);
+            break;
+        case COMP:
+            handle_comparison(instruction);
             break;
         case STORER:
             handle_reg_storage(instruction & 0x0FFF);
