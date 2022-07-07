@@ -1,7 +1,6 @@
 // Testing Logical Instructions
 
 #include "../src/vm/vm.h"
-#include <string.h>
 
 uint16_t instructions[] = {
     INSTRUCTION(PUSH, 0b100),
@@ -13,6 +12,6 @@ uint16_t instructions[] = {
 };
 
 int main(){
-    memcpy(&code_store, &instructions, sizeof(instructions));
+    copy_instructions_to_memory(instructions, sizeof(instructions));
     run_machine();
 }

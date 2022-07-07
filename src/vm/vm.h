@@ -77,13 +77,13 @@ enum REGISTERS{
 };
 
 enum ERROR_CODES{
-    ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED
+    ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED, STACK_UNDERFLOW
 };
 
-uint16_t stack[MAX_STACK_LENGTH];
-uint16_t var_store[MEM_CELL_COUNT/2];
-uint16_t code_store[MEM_CELL_COUNT/2];
-uint16_t reg_data[R_COUNT];
+extern uint16_t stack[];
+extern uint16_t var_store[];
+extern uint16_t code_store[];
+extern uint16_t reg_data[];
 
 #define IP reg_data[Rip]
 #define SP reg_data[Rsp]
@@ -93,6 +93,7 @@ uint16_t reg_data[R_COUNT];
 
 #define OPCODE(instruction) (instruction >> 12)
 
+void copy_instructions_to_memory(uint16_t *instructions, uint16_t size);
 void execute_instruction(uint16_t instruction);
 void run_machine();
 
