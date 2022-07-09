@@ -7,11 +7,11 @@ uint16_t var_store[MEM_CELL_COUNT/2];
 uint16_t code_store[MEM_CELL_COUNT/2];
 uint16_t reg_data[R_COUNT];
 
-void push(uint16_t data){
+static inline void push(uint16_t data){
     stack[SP++] = data;
 }
 
-uint16_t pop(){
+static inline uint16_t pop(){
     if(SP > 0){
         return stack[--SP];
     } else {
@@ -25,10 +25,9 @@ void handle_input_output(uint16_t instruction){
         case PRINT:
             switch(instruction & 0x003F){
                 case INTEGER:
-                    printf("%d", stack[SP-1]);
+                    printf("%d", pop());
                     break;
             }
-            --SP;
             break;
         case PRINT_ESEQ:
             switch(instruction & 0x003F){
@@ -86,10 +85,10 @@ void handle_bit_shift(uint16_t instruction){
     uint16_t count = (instruction & 0x00FF);
     switch(direction){
         case LEFT:
-            stack[SP-1] = (stack[SP-1] << count);
+            push(pop() << count);
             break;
         case RIGHT:
-            stack[SP-1] = (stack[SP-1] >> count);
+            push(pop() >> count);
             break;
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
@@ -111,7 +110,6 @@ void handle_comparison(uint16_t instruction){
         default:
             reg_data[Rcom] = ILLEGAL_PARAMETER;
     }
-    SP -= 2;
 }
 
 void handle_reg_storage(uint16_t reg_index){
