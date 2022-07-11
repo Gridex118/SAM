@@ -80,10 +80,10 @@ enum ERROR_CODES{
     ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED, STACK_UNDERFLOW
 };
 
-extern uint16_t stack[];
-extern uint16_t var_store[];
-extern uint16_t code_store[];
-extern uint16_t reg_data[];
+extern uint16_t stack[MAX_STACK_LENGTH];
+extern uint16_t var_store[MEM_CELL_COUNT/2];
+extern uint16_t code_store[MEM_CELL_COUNT/2];
+extern uint16_t reg_data[R_COUNT];
 
 #define IP reg_data[Rip]
 #define SP reg_data[Rsp]
