@@ -20,6 +20,20 @@ static inline uint16_t pop(){
     }
 }
 
+static inline uint16_t get_eff_addr(uint16_t base_address, uint16_t base_index){
+    switch(base_index){
+        case Rcbindx:
+            return (reg_data[Rbindx] & 0x00FF) + base_address;
+            break;
+        case Rvbindx:
+            return (reg_data[Rbindx] >> 8) + base_address;
+            break;
+        default:
+            return -1;
+            break;
+    }
+}
+
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
         case PRINT:
@@ -56,7 +70,11 @@ void handle_arithmetic(uint16_t instruction){
             push(pop() * pop());
             break;
         case DIV:
-           push((uint16_t) (pop() / pop()));
+            if(stack[SP-2] != 0){
+                push((uint16_t) (pop() / pop()));
+            } else {
+                reg_data[Rerr] = ZERO_DIV_ERROR;
+            }
             break;
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
@@ -109,6 +127,23 @@ void handle_comparison(uint16_t instruction){
             break;
         default:
             reg_data[Rcom] = ILLEGAL_PARAMETER;
+    }
+}
+
+void handle_memory_load(uint16_t address){
+    push(var_store[get_eff_addr(address, Rvbindx)]);
+}
+
+void handle_memory_storage(uint16_t address, uint16_t memory_section){
+    switch(memory_section){
+        case VAR:{
+            var_store[get_eff_addr(address, Rvbindx)] = pop();
+            break;
+        }
+        case CODE:{
+            code_store[get_eff_addr(address, Rvbindx)] = pop();
+            break;
+        }
     }
 }
 
@@ -174,6 +209,15 @@ void execute_instruction(uint16_t instruction){
             break;
         case COMP:
             handle_comparison(instruction);
+            break;
+        case LOADM:
+            handle_memory_load(instruction & 0x0FFF);
+            break;
+        case STOREM:
+            handle_memory_storage((instruction & 0x0FFF), VAR);
+            break;
+        case STOREC:
+            handle_memory_storage((instruction & 0x0FFF), CODE);
             break;
         case STORER:
             handle_reg_storage(instruction & 0x0FFF);

@@ -28,7 +28,7 @@ enum OPCODE{
     STOREM,    // Store into Memory from Top of the Stack
     STOREC,    // Store into Code Space from Top of the Stack
     STORER,    // Store into Register from Top of the Stack 
-    GOTO,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = True 
+    GOTO,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
     IO,    // Handle Input or Output 
     HALT    // Stop Execution 
 };
@@ -77,7 +77,12 @@ enum REGISTERS{
 };
 
 enum ERROR_CODES{
-    ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED, STACK_UNDERFLOW
+    ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED, STACK_UNDERFLOW,
+    ZERO_DIV_ERROR
+};
+
+enum MEMORY_SECTIONS{
+    VAR, CODE
 };
 
 extern uint16_t stack[MAX_STACK_LENGTH];
