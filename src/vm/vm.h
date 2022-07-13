@@ -6,7 +6,7 @@
 #define MEM_CELL_COUNT 0x0200    // 512 memory cells, 2 bytes each - 1KiB
 #define MAX_STACK_LENGTH 0x0014
 
-#define len_uint16(arr) (sizeof(arr) / sizeof(uint16_t))
+#define len(arr, base_size) (sizeof(arr) / base_size)
 
 #define INSTRUCTION(OPCODE, PARA) ((OPCODE << 12) + PARA)
 #define MEGRE_PARA(PARA1, PARA2) ((PARA1 << 6) + PARA2)
@@ -22,15 +22,19 @@ enum OPCODE{
     ARITH,    // Handle Arithmetic Operations 
     LOGIC,    // Handle Logical Operations
     BSHIFT,    // Handle Bit Shift 
-    COMP,    // Compare Stack[SP-2] and Stack[SP-1] 
+    COMPARE,    // Compare Stack[SP-2] and Stack[SP-1] 
     LOADM,    // Load from Memory to Top of the Stack 
     LOADR,    // Load from Register to Top of Stack 
     STOREM,    // Store into Memory from Top of the Stack
     STOREC,    // Store into Code Space from Top of the Stack
     STORER,    // Store into Register from Top of the Stack 
-    GOTO,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
+    JMP,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
     IO,    // Handle Input or Output 
     HALT    // Stop Execution 
+};
+
+enum BYTE_ORDERS{
+    LOW, HIGH
 };
 
 enum ARITHMETIC_OPERATIONS{
@@ -61,6 +65,10 @@ enum ESCAPE_SEQUENCES{
     NEWLINE, RETURN_CARRIAGE
 };
 
+enum JUMP_OPTIONS{
+    UNCOND, COND
+};
+
 enum REGISTERS{
     Ra,
     Rb,    // a, b, c - General Purpose Registers 
@@ -68,7 +76,7 @@ enum REGISTERS{
     Rsp,    // Stack Pointer 
     Rip,    // Instruction Pointer 
     Rcom,    // Comparison Data Storage 
-    Rbindx,    // Base Index 
+    Rbindx,    // Base Index: VAR CODE
     Rhlt,    // Machine Halt Status
     Rerr,    // Error Code Register
     R_COUNT,    // Number of Registers 

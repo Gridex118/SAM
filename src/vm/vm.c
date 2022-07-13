@@ -20,17 +20,23 @@ static inline uint16_t pop(){
     }
 }
 
-static inline uint16_t get_eff_addr(uint16_t base_address, uint16_t base_index){
-    switch(base_index){
-        case Rcbindx:
-            return (reg_data[Rbindx] & 0x00FF) + base_address;
-            break;
-        case Rvbindx:
-            return (reg_data[Rbindx] >> 8) + base_address;
-            break;
-        default:
-            return -1;
-            break;
+static inline uint8_t get_byte(uint16_t word, uint8_t order){
+    if(order == LOW){
+        return (word & 0x00FF);
+    } else if(order == HIGH) {
+        return (word >> 8);
+    } else {
+        return -1;
+    }
+}
+
+static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
+    if(base_indx == Rcbindx){
+        return get_byte(reg_data[Rbindx], LOW) + base_addr;
+    } else if(base_indx == Rvbindx) {
+        return get_byte(reg_data[Rbindx], HIGH) + base_addr;
+    } else {
+        return -1;
     }
 }
 
@@ -43,16 +49,16 @@ void handle_input_output(uint16_t instruction){
                     break;
             }
             break;
-        case PRINT_ESEQ:
-            switch(instruction & 0x003F){
-                case NEWLINE:
-                    putchar('\n');
-                    break;
-                case RETURN_CARRIAGE:
-                    putchar('\r');
-                    break;
+        case PRINT_ESEQ:{
+            char escape_sequences[] = {'\n', '\r'};
+            uint16_t eseq_index = (instruction & 0x003F);
+            if(eseq_index < len(escape_sequences, sizeof(char))){
+                putchar(escape_sequences[eseq_index]);
+            } else {
+                reg_data[Rerr] = ILLEGAL_PARAMETER;
             }
             break;
+        }
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
     }
@@ -175,13 +181,28 @@ void handle_reg_storage(uint16_t reg_index){
 void handle_reg_load(uint16_t reg_index){
     switch(reg_index){
         case Rcbindx:
-            push(reg_data[Rbindx] & 0x00FF);
+            push(get_byte(reg_data[Rbindx], LOW));
             break;
         case Rvbindx:
-            push(reg_data[Rbindx] >> 8);
+            push(get_byte(reg_data[Rbindx], HIGH));
             break;
         default:
             push(reg_data[reg_index]);
+            break;
+    }
+}
+
+void handle_jump(uint16_t instruction){
+    uint16_t new_ip = get_eff_addr(pop(), Rcbindx);
+    switch(instruction & 0x0FFF){
+        case UNCOND:
+            IP = new_ip;
+            break;
+        case COND:
+            if(reg_data[Rcom] == TRUE){
+                IP = new_ip;
+                reg_data[Rcom] = FALSE;
+            }
             break;
     }
 }
@@ -207,7 +228,7 @@ void execute_instruction(uint16_t instruction){
         case BSHIFT:
             handle_bit_shift(instruction);
             break;
-        case COMP:
+        case COMPARE:
             handle_comparison(instruction);
             break;
         case LOADM:
@@ -227,6 +248,9 @@ void execute_instruction(uint16_t instruction){
             break;
         case IO:
             handle_input_output(instruction);
+            break;
+        case JMP:
+            handle_jump(instruction);
             break;
         case HALT:
             reg_data[Rhlt] = TRUE;
