@@ -14,4 +14,5 @@ uint16_t instructions[] = {
 int main(){
     copy_instructions_to_memory(instructions, sizeof(instructions));
     run_machine();
+    return 0;
 }
