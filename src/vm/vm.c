@@ -12,7 +12,7 @@ static inline void push(uint16_t data){
 }
 
 static inline uint16_t pop(){
-    if(SP > 0){
+    if (SP > 0){
         return stack[--SP];
     } else {
         reg_data[Rerr] = STACK_UNDERFLOW;
@@ -21,9 +21,9 @@ static inline uint16_t pop(){
 }
 
 static inline uint8_t get_byte(uint16_t word, uint8_t order){
-    if(order == LOW){
+    if (order == LOW){
         return (word & 0x00FF);
-    } else if(order == HIGH) {
+    } else if (order == HIGH) {
         return (word >> 8);
     } else {
         return -1;
@@ -31,9 +31,9 @@ static inline uint8_t get_byte(uint16_t word, uint8_t order){
 }
 
 static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
-    if(base_indx == Rcbindx){
+    if (base_indx == Rcbindx){
         return get_byte(reg_data[Rbindx], LOW) + base_addr;
-    } else if(base_indx == Rvbindx) {
+    } else if (base_indx == Rvbindx) {
         return get_byte(reg_data[Rbindx], HIGH) + base_addr;
     } else {
         return -1;
@@ -52,7 +52,7 @@ void handle_input_output(uint16_t instruction){
         case PRINT_ESEQ:{
             char escape_sequences[] = {'\n', '\r'};
             uint16_t eseq_index = (instruction & 0x003F);
-            if(eseq_index < len(escape_sequences, sizeof(char))){
+            if (eseq_index < len(escape_sequences, sizeof(char))){
                 putchar(escape_sequences[eseq_index]);
             } else {
                 reg_data[Rerr] = ILLEGAL_PARAMETER;
@@ -76,7 +76,7 @@ void handle_arithmetic(uint16_t instruction){
             push(pop() * pop());
             break;
         case DIV:
-            if(stack[SP-2] != 0){
+            if (stack[SP-2] != 0){
                 push((uint16_t) (pop() / pop()));
             } else {
                 reg_data[Rerr] = ZERO_DIV_ERROR;
