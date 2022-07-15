@@ -209,7 +209,6 @@ void handle_jump(uint16_t instruction){
 }
 
 void execute_instruction(uint16_t instruction){
-
     switch(OPCODE(instruction)){
         case PUSH:
             push(instruction & 0x0FFF);
@@ -257,11 +256,9 @@ void execute_instruction(uint16_t instruction){
             reg_data[Rhlt] = TRUE;
             break;
     }
-
     if ((CODE_BASE_INDEX + ++IP) >= MEM_CELL_COUNT/2){
         reg_data[Rhlt] = TRUE;
     }
-
 }
 
 void run_machine(){

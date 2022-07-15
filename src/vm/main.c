@@ -8,54 +8,52 @@ char HEX_DIGITS[] = {
 
 #define HEX_DIGIT_COUNT 16
 
-static inline uint8_t hex_to_dec(char hex_digit_char){
+static inline uint8_t hex_to_dec(const char hex_digit){
     for (int i = 0; i < HEX_DIGIT_COUNT; ++i){
-        if (hex_digit_char == HEX_DIGITS[i]){
+        if (hex_digit == HEX_DIGITS[i]){
             return i;
         }
     }
     return -1; // If program reaches this line, we conclude that no character was matched
 }
 
-int read_instructions(char* file_name){
+int read_instructions(const char* file_name){
     uint16_t instructions[MEM_CELL_COUNT/2];
     /* The maximum number of elements in the array must be equal to
        the maximum number of instructions that can be stored */
     uint16_t instr_set_index = 0;
-    FILE* source_file = fopen(file_name, "r");
+    FILE* source_file;
+    if ((source_file = fopen(file_name, "r")) == NULL){
+        return -1;
+    }
     char char_read;
-    unsigned short add_digit = FALSE;
+    unsigned short read_digit = FALSE;
     uint16_t instr = 0;
     uint8_t instr_digit_indx = 0;
     while ((char_read = fgetc(source_file)) != EOF){
         if ((char_read == ' ') | (char_read == '\n')){
             // Ignore whitespace
         } else if (char_read == 'x'){
-            add_digit = TRUE;
+            // Start reading (0x hexadecimal representation)
+            read_digit = TRUE;
         } else {
-            if (add_digit == TRUE){
-                uint8_t digit = hex_to_dec(char_read);
-                if (digit == -1){
+            if (read_digit == TRUE){
+                uint8_t decimal = hex_to_dec(char_read);
+                if (decimal == -1){
                     return -1;
                 }
-                switch(instr_digit_indx++){
-                    case 0:
-                        instr += (digit << 12);
-                        break;
-                    case 1:
-                        instr += (digit << 8);
-                        break;
-                    case 2:
-                        instr += (digit << 4);
-                        break;
-                    case 3:
-                        instr += digit;
-                        instructions[instr_set_index++] = instr;
-                        // Reset instruction
-                        add_digit = FALSE;
-                        instr = 0;
-                        instr_digit_indx = 0;
-                        break;
+                uint8_t shift_count = (4 * (3 - instr_digit_indx));
+                /* Every digit, since it was converted from a hex digit, costs
+                   4 bits; then we use bit shifting to fix the units of the digits */
+                instr += (decimal << shift_count);
+                if (instr_digit_indx == 3){
+                    instructions[instr_set_index++] = instr;
+                    // Reset variables
+                    read_digit = FALSE;
+                    instr = 0;
+                    instr_digit_indx = 0;
+                } else {
+                    ++instr_digit_indx;
                 }
             }
         }
