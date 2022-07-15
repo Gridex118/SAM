@@ -42,6 +42,7 @@ static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
 
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
+        printf("%d\n", (instruction & 0x0FC0));
         case PRINT:
             switch(instruction & 0x003F){
                 case INTEGER:
