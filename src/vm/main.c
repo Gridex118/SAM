@@ -1,6 +1,8 @@
 #include "./vm.h"
 #include <stdio.h>
 
+// It has been assumed that the source file contains only hexadecimal numbers
+
 char HEX_DIGITS[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8',
     '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -44,7 +46,7 @@ int read_instructions(const char* file_name){
                 }
                 uint8_t shift_count = (4 * (3 - instr_digit_indx));
                 /* Every digit, since it was converted from a hex digit, costs
-                   4 bits; then we use bit shifting to fix the units of the digits */
+                   4 bits; we use bit shifting to fix the place values */
                 instr += (decimal << shift_count);
                 if (instr_digit_indx == 3){
                     instructions[instr_set_index++] = instr;
@@ -71,7 +73,8 @@ int main(int argc, char** argv){
         if (read_instructions(argv[1]) != -1){
             run_machine();
         } else {
-            printf("Sorry, an error Occured\n");
+            printf("Sorry, an error occured\n");
+            return -1;
         }
     }
     return 0;

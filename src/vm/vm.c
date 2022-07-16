@@ -40,13 +40,35 @@ static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
     }
 }
 
+void print_string(){
+    uint16_t current_addr = get_eff_addr(pop(), Rvbindx);
+    uint8_t order = HIGH;
+    uint8_t current_char;
+    do{
+        current_char = get_byte(var_store[current_addr], order);
+        printf("%c", current_char);
+        if (order == LOW){
+            ++current_addr;
+        }
+        order = (order == HIGH ? LOW : HIGH);
+    } while(current_char != '\0');
+}
+
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
-        printf("%d\n", (instruction & 0x0FC0));
+        case INPUT:{
+                uint16_t input = (uint16_t) getchar();
+                push(input);
+                // TODO: deal with integer input
+            }
+            break;
         case PRINT:
             switch(instruction & 0x003F){
                 case INTEGER:
                     printf("%d", pop());
+                    break;
+                case STRING:
+                    print_string();
                     break;
             }
             break;
@@ -78,7 +100,8 @@ void handle_arithmetic(uint16_t instruction){
             break;
         case DIV:
             if (stack[SP-2] != 0){
-                push((uint16_t) (pop() / pop()));
+                uint16_t a = pop(), b = pop();
+                push((uint16_t) (b / a));    // Firt operand(dividend) was pushed first
             } else {
                 reg_data[Rerr] = ZERO_DIV_ERROR;
             }
@@ -148,7 +171,7 @@ void handle_memory_storage(uint16_t address, uint16_t memory_section){
             break;
         }
         case CODE:{
-            code_store[get_eff_addr(address, Rvbindx)] = pop();
+            code_store[get_eff_addr(address, Rcbindx)] = pop();
             break;
         }
     }
