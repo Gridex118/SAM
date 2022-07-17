@@ -1,2 +1,9 @@
-vm.out: src/vm/vm.c src/vm/main.c
-	gcc -Wall -O1 src/vm/vm.c src/vm/main.c -o vm.out
+CARGS = -Wall -O1
+
+VM = src/vm/vm.c
+MAIN = src/vm/main.c
+
+TARGET = vm.out
+
+$(TARGET): $(VM) $(MAIN)
+	gcc $(CARGS) $(VM) $(MAIN) -o $(TARGET)

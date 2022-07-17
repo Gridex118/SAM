@@ -1,6 +1,6 @@
 // Testing arithmetic instructions
 
-#include "../src/vm/vm.h"
+#include "./tests.h"
 
 uint16_t instructions[] = {
     INSTRUCTION(PUSH, 12),
@@ -8,8 +8,8 @@ uint16_t instructions[] = {
     INSTRUCTION(ARITH, ADD),
     INSTRUCTION(PUSH, 2),
     INSTRUCTION(ARITH, MULT),
-    INSTRUCTION(IO, MEGRE_PARA(PRINT, INTEGER)),
-    INSTRUCTION(IO, MEGRE_PARA(PRINT_ESEQ, 0)),
+    INSTRUCTION(IO, MERGE_PARA66(PRINT, INTEGER)),
+    INSTRUCTION(IO, MERGE_PARA66(PRINT_ESEQ, 0)),
     INSTRUCTION(HALT, 0)
 };
 

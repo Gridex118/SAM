@@ -8,9 +8,6 @@
 
 #define len(arr, base_size) (sizeof(arr) / base_size)
 
-#define INSTRUCTION(OPCODE, PARA) ((OPCODE << 12) + PARA)
-#define MEGRE_PARA(PARA1, PARA2) ((PARA1 << 6) + PARA2)
-
 enum BOOL{
     FALSE, TRUE
 };
