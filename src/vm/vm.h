@@ -30,6 +30,9 @@ enum OPCODE{
     HALT    // Stop Execution 
 };
 
+#define MEM_DUMP_START 0xFF00
+#define MEM_DUMP_END 0xFF01
+
 enum BYTE_ORDERS{
     LOW, HIGH
 };

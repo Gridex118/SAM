@@ -30,6 +30,8 @@ int read_instructions(const char* file_name){
     }
     char char_read;
     unsigned short read_digit = FALSE;
+    unsigned short store_inst = FALSE;
+    unsigned short store_data = FALSE;
     uint16_t instr = 0;
     uint8_t instr_digit_indx = 0;
     while ((char_read = fgetc(source_file)) != EOF){
@@ -49,11 +51,23 @@ int read_instructions(const char* file_name){
                    4 bits; we use bit shifting to fix the place values */
                 instr += (decimal << shift_count);
                 if (instr_digit_indx == 3){
-                    instructions[instr_set_index++] = instr;
-                    // Reset variables
-                    read_digit = FALSE;
-                    instr = 0;
-                    instr_digit_indx = 0;
+                    if (instr == MEM_DUMP_START){
+                        store_data = TRUE;
+                    } else if (instr == MEM_DUMP_END){
+                        store_data = FALSE;
+                    } else{
+                        store_inst = TRUE;
+                    }
+                    if (store_inst == TRUE){
+                        instructions[instr_set_index++] = instr;
+                        // Reset variables
+                        read_digit = FALSE;
+                        store_inst = FALSE;
+                        instr = 0;
+                        instr_digit_indx = 0;
+                    } else if (store_data == TRUE){
+                        // Store everything between start and end into memory
+                    }
                 } else {
                     ++instr_digit_indx;
                 }

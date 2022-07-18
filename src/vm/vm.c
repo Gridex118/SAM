@@ -1,5 +1,6 @@
 #include "./vm.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 uint16_t stack[MAX_STACK_LENGTH];
@@ -54,13 +55,21 @@ void print_string(){
     } while(current_char != '\0');
 }
 
+void push_input(){
+    char raw_input[10];
+    fgets(raw_input, 10, stdin);
+    if ((raw_input[0] >= '0') && (raw_input[0] <= '9')){
+        // TODO: Scan an ineger properly
+        push((uint16_t) strtol(raw_input, NULL, 10));
+    } else {
+        push((uint16_t) raw_input[0]);
+    }
+}
+
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
-        case INPUT:{
-                uint16_t input = (uint16_t) getchar();
-                push(input);
-                // TODO: deal with integer input
-            }
+        case INPUT:
+            push_input();
             break;
         case PRINT:
             switch(instruction & 0x003F){
