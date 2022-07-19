@@ -56,10 +56,9 @@ void print_string(){
 }
 
 void push_input(){
-    char raw_input[10];
-    fgets(raw_input, 10, stdin);
+    char raw_input[5];    // 2^16 has 5 digits
+    fgets(raw_input, 5, stdin);
     if ((raw_input[0] >= '0') && (raw_input[0] <= '9')){
-        // TODO: Scan an ineger properly
         push((uint16_t) strtol(raw_input, NULL, 10));
     } else {
         push((uint16_t) raw_input[0]);

@@ -1,5 +1,6 @@
 #include "./vm.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 // It has been assumed that the source file contains only hexadecimal numbers
 
@@ -10,6 +11,23 @@ char HEX_DIGITS[] = {
 
 #define HEX_DIGIT_COUNT 16
 
+typedef struct{
+    char char_read;
+    unsigned short read_digit, store_inst, store_data;
+    uint16_t instr;
+    uint8_t instr_digit_index;
+} InstrCandidate;
+
+InstrCandidate* init_instr_candidate(){
+    InstrCandidate* incand = (InstrCandidate*) malloc(sizeof(InstrCandidate));
+    incand->read_digit = FALSE;
+    incand->store_inst = FALSE;
+    incand->store_data = FALSE;
+    incand->instr = 0;
+    incand->instr_digit_index = 0;
+    return incand;
+}
+
 static inline uint8_t hex_to_dec(const char hex_digit){
     for (int i = 0; i < HEX_DIGIT_COUNT; ++i){
         if (hex_digit == HEX_DIGITS[i]){
@@ -17,6 +35,32 @@ static inline uint8_t hex_to_dec(const char hex_digit){
         }
     }
     return -1; // If program reaches this line, we conclude that no character was matched
+}
+
+int parse_instr(InstrCandidate* incand){
+    uint8_t decimal = hex_to_dec(incand->char_read);
+    if (decimal == -1){
+        return -1;
+    }
+    uint8_t shift_count = (4 * (3 - incand->instr_digit_index));
+    /* Every digit, since it was converted from a hex digit, costs
+        4 bits; we use bit shifting to fix the place values */
+    incand->instr += (decimal << shift_count);
+    return 0;
+}
+
+void toggle_storage_type(InstrCandidate* incand){
+    switch(incand->instr){
+        case MEM_DUMP_START:
+            incand->store_data = TRUE;
+            break;
+        case MEM_DUMP_END:
+            incand->store_data = FALSE;
+            break;
+        default:
+            incand->store_inst = TRUE;
+            break;
+    }
 }
 
 int read_instructions(const char* file_name){
@@ -28,48 +72,29 @@ int read_instructions(const char* file_name){
     if ((source_file = fopen(file_name, "r")) == NULL){
         return -1;
     }
-    char char_read;
-    unsigned short read_digit = FALSE;
-    unsigned short store_inst = FALSE;
-    unsigned short store_data = FALSE;
-    uint16_t instr = 0;
-    uint8_t instr_digit_indx = 0;
-    while ((char_read = fgetc(source_file)) != EOF){
-        if ((char_read == ' ') | (char_read == '\n')){
+    InstrCandidate* incand = init_instr_candidate();
+    while ((incand->char_read = fgetc(source_file)) != EOF){
+        if ((incand->char_read == ' ') | (incand->char_read == '\n')){
             // Ignore whitespace
-        } else if (char_read == 'x'){
+        } else if (incand->char_read == 'x'){
             // Start reading (0x hexadecimal representation)
-            read_digit = TRUE;
+            incand->read_digit = TRUE;
         } else {
-            if (read_digit == TRUE){
-                uint8_t decimal = hex_to_dec(char_read);
-                if (decimal == -1){
+            if (incand->read_digit == TRUE){
+                if (parse_instr(incand) == -1){
                     return -1;
-                }
-                uint8_t shift_count = (4 * (3 - instr_digit_indx));
-                /* Every digit, since it was converted from a hex digit, costs
-                   4 bits; we use bit shifting to fix the place values */
-                instr += (decimal << shift_count);
-                if (instr_digit_indx == 3){
-                    if (instr == MEM_DUMP_START){
-                        store_data = TRUE;
-                    } else if (instr == MEM_DUMP_END){
-                        store_data = FALSE;
-                    } else{
-                        store_inst = TRUE;
-                    }
-                    if (store_inst == TRUE){
-                        instructions[instr_set_index++] = instr;
+                };
+                if (incand->instr_digit_index == 3){
+                    toggle_storage_type(incand);
+                    if (incand->store_inst == TRUE){
+                        instructions[instr_set_index++] = incand->instr;
                         // Reset variables
-                        read_digit = FALSE;
-                        store_inst = FALSE;
-                        instr = 0;
-                        instr_digit_indx = 0;
-                    } else if (store_data == TRUE){
+                        incand = init_instr_candidate();
+                    } else if (incand->store_data == TRUE){
                         // Store everything between start and end into memory
                     }
                 } else {
-                    ++instr_digit_indx;
+                    ++(incand->instr_digit_index);
                 }
             }
         }
