@@ -30,8 +30,10 @@ enum OPCODE{
     HALT    // Stop Execution 
 };
 
-#define MEM_DUMP_START 0xFF00
-#define MEM_DUMP_END 0xFF01
+#define CODE_DUMP_START 0xFFFC
+#define CODE_DUMP_END 0xFFFD
+#define MEM_DUMP_START 0xFFFE
+#define MEM_DUMP_END 0xFFFF
 
 enum BYTE_ORDERS{
     LOW, HIGH
@@ -107,6 +109,7 @@ extern uint16_t reg_data[R_COUNT];
 #define OPCODE(instruction) (instruction >> 12)
 
 void copy_instructions_to_memory(uint16_t *instructions, uint16_t size);
+void copy_data_to_memory(uint16_t *data, uint16_t size);
 void execute_instruction(uint16_t instruction);
 void run_machine();
 

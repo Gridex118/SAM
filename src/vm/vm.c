@@ -59,7 +59,10 @@ void push_input(){
     char raw_input[5];    // 2^16 has 5 digits
     fgets(raw_input, 5, stdin);
     if ((raw_input[0] >= '0') && (raw_input[0] <= '9')){
-        push((uint16_t) strtol(raw_input, NULL, 10));
+        long num = strtol(raw_input, NULL, 10);
+        if (num < 65536){    //2^16
+            push((uint16_t) num);
+        }
     } else {
         push((uint16_t) raw_input[0]);
     }
@@ -300,4 +303,8 @@ void run_machine(){
 
 void copy_instructions_to_memory(uint16_t *instructions, uint16_t size){
     memcpy(&code_store, instructions, size);
+}
+
+void copy_data_to_memory(uint16_t *data, uint16_t size){
+    memcpy(&var_store, data, size);
 }
