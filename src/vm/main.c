@@ -11,7 +11,7 @@ char HEX_DIGITS[HEX_DIGIT_COUNT] = {
 };
 
 InstrCandidate* init_instr_candidate(){
-    InstrCandidate* incand = (InstrCandidate*) malloc(sizeof(InstrCandidate));
+    InstrCandidate *incand = (InstrCandidate*) malloc(sizeof(InstrCandidate));
     incand->read_digit = FALSE;
     incand->is_instr = FALSE;
     incand->is_data = FALSE;
@@ -55,12 +55,14 @@ void toggle_storage_type(InstrCandidate *incand){
     switch(incand->instr){
         case MEM_DUMP_START:
             incand->is_data = TRUE;
+            incand->is_instr = FALSE;
             break;
         case MEM_DUMP_END:
             incand->is_data = FALSE;
             break;
         case CODE_DUMP_START:
             incand->is_instr = TRUE;
+            incand->is_data = FALSE;
             break;
         case CODE_DUMP_END:
             incand->skip_instr = FALSE;
@@ -106,7 +108,7 @@ int read_source(const char *file_name){
                 } else {
                     ++(incand->instr_digit_index);
                 }
-                if (incand->skip_instr == TRUE){
+                if (incand->skip_instr){
                     incand->skip_instr = FALSE;
                 }
             }
