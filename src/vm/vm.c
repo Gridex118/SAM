@@ -31,7 +31,7 @@ static inline uint8_t get_byte(uint16_t word, uint8_t order){
     }
 }
 
-static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
+static inline uint16_t eff_addr(uint16_t base_addr, uint16_t base_indx){
     if (base_indx == Rcbindx){
         return get_byte(reg_data[Rbindx], LOW) + base_addr;
     } else if (base_indx == Rvbindx) {
@@ -42,7 +42,7 @@ static inline uint16_t get_eff_addr(uint16_t base_addr, uint16_t base_indx){
 }
 
 void print_string(){
-    uint16_t current_addr = get_eff_addr(pop(), Rvbindx);
+    uint16_t current_addr = eff_addr(pop(), Rvbindx);
     uint8_t order = HIGH;
     uint8_t current_char;
     do{
@@ -52,26 +52,41 @@ void print_string(){
             ++current_addr;
         }
         order = (order == HIGH ? LOW : HIGH);
-    } while(current_char != '\0');
+    } while (current_char != '\0');
 }
 
-void push_input(){
+void push_input(uint8_t data_type){
     char raw_input[5];    // 2^16 has 5 digits
     fgets(raw_input, 5, stdin);
-    if ((raw_input[0] >= '0') && (raw_input[0] <= '9')){
-        long num = strtol(raw_input, NULL, 10);
-        if (num < 65536){    //2^16
-            push((uint16_t) num);
-        }
+    long num;
+    switch(data_type){
+        case INTEGER:
+            if ((num = strtol(raw_input, NULL, 10)) < UINT16_MAX){
+                push((uint16_t) num);
+            } else {
+                push(UINT16_MAX);
+            }
+            break;
+        case CHAR:
+            push((uint16_t) raw_input[0]);
+            break;
+    }
+}
+
+int print_eseq(uint8_t eseq_index){
+    char escape_sequences[] = { '\n', '\r' };
+    if (eseq_index < len(escape_sequences, sizeof(char))){
+        putchar(escape_sequences[eseq_index]);
+        return 0;
     } else {
-        push((uint16_t) raw_input[0]);
+        return -1;
     }
 }
 
 void handle_input_output(uint16_t instruction){
     switch((instruction & 0x0FC0) >> 6){
         case INPUT:
-            push_input();
+            push_input(instruction & 0x003F);
             break;
         case PRINT:
             switch(instruction & 0x003F){
@@ -84,11 +99,7 @@ void handle_input_output(uint16_t instruction){
             }
             break;
         case PRINT_ESEQ:{
-            char escape_sequences[] = {'\n', '\r'};
-            uint16_t eseq_index = (instruction & 0x003F);
-            if (eseq_index < len(escape_sequences, sizeof(char))){
-                putchar(escape_sequences[eseq_index]);
-            } else {
+            if (print_eseq(instruction & 0x003F) == -1){
                 reg_data[Rerr] = ILLEGAL_PARAMETER;
             }
             break;
@@ -171,18 +182,21 @@ void handle_comparison(uint16_t instruction){
     }
 }
 
-void handle_memory_load(uint16_t address){
-    push(var_store[get_eff_addr(address, Rvbindx)]);
+void handle_memory_load(uint16_t parameters){
+    uint16_t address = (parameters & 0x00FF);
+    uint8_t base = ((parameters & 0x0F00) >> 8);
+    push(var_store[eff_addr(address, base)]);
 }
 
-void handle_memory_storage(uint16_t address, uint16_t memory_section){
-    switch(memory_section){
+void handle_memory_storage(uint16_t parameters){
+    uint16_t address = (parameters & 0x00FF);
+    switch((parameters & 0x0F00) >> 8){
         case VAR:{
-            var_store[get_eff_addr(address, Rvbindx)] = pop();
+            var_store[eff_addr(address, Rvbindx)] = pop();
             break;
         }
         case CODE:{
-            code_store[get_eff_addr(address, Rcbindx)] = pop();
+            code_store[eff_addr(address, Rcbindx)] = pop();
             break;
         }
     }
@@ -228,7 +242,7 @@ void handle_reg_load(uint16_t reg_index){
 }
 
 void handle_jump(uint16_t instruction){
-    uint16_t new_ip = get_eff_addr(pop(), Rcbindx);
+    uint16_t new_ip = eff_addr(pop(), Rcbindx);
     switch(instruction & 0x0FFF){
         case UNCOND:
             IP = new_ip;
@@ -269,10 +283,7 @@ void execute_instruction(uint16_t instruction){
             handle_memory_load(instruction & 0x0FFF);
             break;
         case STOREM:
-            handle_memory_storage((instruction & 0x0FFF), VAR);
-            break;
-        case STOREC:
-            handle_memory_storage((instruction & 0x0FFF), CODE);
+            handle_memory_storage((instruction & 0x0FFF));
             break;
         case STORER:
             handle_reg_storage(instruction & 0x0FFF);

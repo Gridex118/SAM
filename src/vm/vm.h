@@ -23,7 +23,6 @@ enum OPCODE{
     LOADM,    // Load from Memory to Top of the Stack 
     LOADR,    // Load from Register to Top of Stack 
     STOREM,    // Store into Memory from Top of the Stack
-    STOREC,    // Store into Code Space from Top of the Stack
     STORER,    // Store into Register from Top of the Stack 
     JMP,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
     IO,    // Handle Input or Output 
@@ -35,41 +34,29 @@ enum OPCODE{
 #define MEM_DUMP_START 0xFFFE
 #define MEM_DUMP_END 0xFFFF
 
-enum BYTE_ORDERS{
-    LOW, HIGH
-};
+enum BYTE_ORDERS{ LOW, HIGH };
 
 enum ARITHMETIC_OPERATIONS{
     ADD, SUB, MULT, DIV
 };
 
-enum LOGICAL_OPERATIONS{
-    AND, OR, NOT
-};
+enum LOGICAL_OPERATIONS{ AND, OR, NOT };
 
-enum BSHIFT_PARA{
-    LEFT, RIGHT
-};
+enum BSHIFT_PARA{ LEFT, RIGHT };
 
-enum COMPARISON_PARA{
-    EQL, LS, GR
-};
+enum COMPARISON_PARA{ EQL, LS, GR };
 
 enum IO_PARA{
     INPUT, PRINT, PRINT_ESEQ
 };
 
-enum OUTPUT{
-    INTEGER, STRING
-};
+enum IO_TYPES{ INTEGER, STRING, CHAR };
 
 enum ESCAPE_SEQUENCES{
     NEWLINE, RETURN_CARRIAGE
 };
 
-enum JUMP_OPTIONS{
-    UNCOND, COND
-};
+enum JUMP_OPTIONS{ UNCOND, COND };
 
 enum REGISTERS{
     Ra,
@@ -91,9 +78,7 @@ enum ERROR_CODES{
     ZERO_DIV_ERROR
 };
 
-enum MEMORY_SECTIONS{
-    VAR, CODE
-};
+enum MEMORY_SECTIONS{ VAR, CODE };
 
 extern uint16_t stack[MAX_STACK_LENGTH];
 extern uint16_t var_store[MEM_CELL_COUNT/2];
