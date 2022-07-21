@@ -11,6 +11,6 @@ typedef struct{
     uint8_t instr_digit_index;
 } InstrCandidate;
 
-inline uint8_t hex_to_dec(const char hex_digit);
+int read_source(const char *file_name);
 
 #define is_whitespace(character) ((character == ' ') || (character == '\n'))

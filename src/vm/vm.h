@@ -29,10 +29,8 @@ enum OPCODE{
     HALT    // Stop Execution 
 };
 
-#define CODE_DUMP_START 0xFFFC
-#define CODE_DUMP_END 0xFFFD
-#define MEM_DUMP_START 0xFFFE
-#define MEM_DUMP_END 0xFFFF
+#define CODE_SECTION_START 0xFFFE
+#define MEM_SECTION_START 0xFFFF
 
 enum BYTE_ORDERS{ LOW, HIGH };
 

@@ -1,9 +1,8 @@
-CARGS = -Wall -O1
+CARGS = -Wall -O0 -g
 
-VM = src/vm/vm.c
-MAIN = src/vm/main.c
+SRC = src/vm/vm.c src/vm/main_util.c src/vm/main.c
 
 TARGET = vm.out
 
-$(TARGET): $(VM) $(MAIN)
-	gcc $(CARGS) $(VM) $(MAIN) -o $(TARGET)
+$(TARGET): $(SRC)
+	gcc $(CARGS) $(SRC) -o $(TARGET)
