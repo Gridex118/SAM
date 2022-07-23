@@ -13,8 +13,6 @@ char HEX_DIGITS[HEX_DIGIT_COUNT] = {
 InstrCandidate* init_instr_candidate(){
     InstrCandidate *incand = (InstrCandidate*) malloc(sizeof(InstrCandidate));
     incand->read_digit = FALSE;
-    incand->is_instr = FALSE;
-    incand->is_data = FALSE;
     incand->skip_instr = FALSE;
     incand->instr = 0;
     incand->instr_digit_index = 0;
@@ -23,8 +21,7 @@ InstrCandidate* init_instr_candidate(){
 
 InstrCandidate* reset_incand(InstrCandidate *old_incand){
     InstrCandidate *incand = init_instr_candidate();
-    incand->is_data = old_incand->is_data;
-    incand->is_instr = old_incand->is_instr;
+    incand->type = old_incand->type;
     return incand;
 }
 
@@ -54,17 +51,16 @@ void toggle_storage_type(InstrCandidate *incand){
     incand->skip_instr = TRUE;
     switch(incand->instr){
         case MEM_SECTION_START:
-            incand->is_data = TRUE;
-            incand->is_instr = FALSE;
+            incand->type = DATA;
             break;
         case CODE_SECTION_START:
-            incand->is_instr = TRUE;
-            incand->is_data = FALSE;
+            incand->type = INSTR;
             break;
         default:
             /* All other cases correspond to either data or actual
                instructions, and thus must not be skipped */
             incand->skip_instr = FALSE;
+            break;
     }
 }
 
@@ -93,9 +89,9 @@ int read_source(const char *file_name){
                 }
                 if (incand->instr_digit_index == 3){
                     toggle_storage_type(incand);
-                    if ((incand->is_instr) && !(incand->skip_instr)){
+                    if ((incand->type == INSTR) && !(incand->skip_instr)){
                         instructions[instr_set_index++] = incand->instr;
-                    } else if ((incand->is_data) && !(incand->skip_instr)){
+                    } else if ((incand->type == DATA) && !(incand->skip_instr)){
                         data[data_index++] = incand->instr;
                     }
                     incand = reset_incand(incand);
