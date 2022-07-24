@@ -35,18 +35,6 @@ static inline uint8_t hex_to_dec(const char hex_digit){
     return -1;
 }
 
-int parse_instr(InstrCandidate *incand){
-    uint8_t decimal = hex_to_dec(incand->char_read);
-    if (decimal == -1){
-        return -1;
-    }
-    uint8_t shift_count = (4 * (3 - incand->instr_digit_index));
-    /* Every digit, since it was converted from a hex digit, costs
-        4 bits; we use bit shifting to fix the place values */
-    incand->instr += (decimal << shift_count);
-    return 0;
-}
-
 void toggle_storage_type(InstrCandidate *incand){
     incand->skip_instr = TRUE;
     switch(incand->instr){
@@ -64,17 +52,36 @@ void toggle_storage_type(InstrCandidate *incand){
     }
 }
 
-int read_source(const char *file_name){
-    uint16_t instructions[MEM_CELL_COUNT/2];
-    uint16_t data[MEM_CELL_COUNT/2];
-    /* The maximum number of elements in the array must be equal to
-       the maximum number of instructions or data that can be stored */
-    uint16_t instr_set_index = 0;
-    uint16_t data_index = 0;
-    FILE* source_file;
-    if ((source_file = fopen(file_name, "r")) == NULL){
-        return -1;
+void store_instr(InstrCandidate *incand, Indices *indices){
+    toggle_storage_type(incand);
+    if ((incand->type == INSTR) && !(incand->skip_instr)){
+        code_store[(indices->code_indx)++] = incand->instr;
+    } else if ((incand->type == DATA) && !(incand->skip_instr)){
+        data_store[(indices->data_indx)++] = incand->instr;
     }
+}
+
+int parse_instr(InstrCandidate *incand, Indices *indices){
+    uint8_t decimal = hex_to_dec(incand->char_read);
+    if (decimal == -1){ return -1; }
+    uint8_t shift_count = (4 * (3 - incand->instr_digit_index));
+    /* Every digit, since it was converted from a hex digit, costs
+        4 bits; we use bit shifting to fix the place values */
+    incand->instr += (decimal << shift_count);
+    if (incand->instr_digit_index == 3){
+        store_instr(incand, indices);
+        *incand = *(reset_incand(incand));
+    } else { ++(incand->instr_digit_index); }
+    if (incand->skip_instr){
+        incand->skip_instr = FALSE;
+    }
+    return 0;
+}
+
+int read_source(const char *file_name){
+    Indices indices = {0, 0};
+    FILE* source_file;
+    if ((source_file = fopen(file_name, "r")) == NULL){ return -1; }
     InstrCandidate* incand = init_instr_candidate();
     while ((incand->char_read = fgetc(source_file)) != EOF){
         if (is_whitespace(incand->char_read)){
@@ -84,29 +91,10 @@ int read_source(const char *file_name){
             incand->read_digit = TRUE;
         } else {
             if (incand->read_digit){
-                if (parse_instr(incand) == -1){
-                    return -1;
-                }
-                if (incand->instr_digit_index == 3){
-                    toggle_storage_type(incand);
-                    if ((incand->type == INSTR) && !(incand->skip_instr)){
-                        instructions[instr_set_index++] = incand->instr;
-                    } else if ((incand->type == DATA) && !(incand->skip_instr)){
-                        data[data_index++] = incand->instr;
-                    }
-                    incand = reset_incand(incand);
-                } else {
-                    ++(incand->instr_digit_index);
-                }
-                if (incand->skip_instr){
-                    incand->skip_instr = FALSE;
-                }
+                if (parse_instr(incand, &indices) == -1){ return -1; }
             }
         }
     }
-    size_t instr_set_size = (sizeof(uint16_t) * (++instr_set_index));
-    copy_instructions_to_memory(instructions, instr_set_size);
-    size_t data_size = (sizeof(uint16_t) * (++data_index));
-    copy_data_to_memory(data, data_size);
+    free(incand);
     return 0;
 }

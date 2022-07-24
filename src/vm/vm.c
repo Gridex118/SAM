@@ -1,10 +1,9 @@
 #include "./vm.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 uint16_t stack[MAX_STACK_LENGTH];
-uint16_t var_store[MEM_CELL_COUNT/2];
+uint16_t data_store[MEM_CELL_COUNT/2];
 uint16_t code_store[MEM_CELL_COUNT/2];
 uint16_t reg_data[R_COUNT];
 
@@ -46,7 +45,7 @@ void print_string(){
     uint8_t order = HIGH;
     uint8_t current_char;
     do{
-        current_char = get_byte(var_store[current_addr], order);
+        current_char = get_byte(data_store[current_addr], order);
         printf("%c", current_char);
         if (order == LOW){
             ++current_addr;
@@ -185,14 +184,14 @@ void handle_comparison(uint16_t instruction){
 void handle_memory_load(uint16_t parameters){
     uint16_t address = (parameters & 0x00FF);
     uint8_t base = ((parameters & 0x0F00) >> 8);
-    push(var_store[eff_addr(address, base)]);
+    push(data_store[eff_addr(address, base)]);
 }
 
 void handle_memory_storage(uint16_t parameters){
     uint16_t address = (parameters & 0x00FF);
     switch((parameters & 0x0F00) >> 8){
         case VAR:{
-            var_store[eff_addr(address, Rvbindx)] = pop();
+            data_store[eff_addr(address, Rvbindx)] = pop();
             break;
         }
         case CODE:{
@@ -310,12 +309,4 @@ void run_machine(){
     while (MACHINE_IS_RUNNING){
         execute_instruction(code_store[CODE_BASE_INDEX + IP]);
     }
-}
-
-void copy_instructions_to_memory(uint16_t *instructions, uint16_t size){
-    memcpy(&code_store, instructions, size);
-}
-
-void copy_data_to_memory(uint16_t *data, uint16_t size){
-    memcpy(&var_store, data, size);
 }

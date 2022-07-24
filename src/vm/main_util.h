@@ -11,6 +11,10 @@ typedef struct{
     uint8_t instr_digit_index;
 } InstrCandidate;
 
+typedef struct{
+    uint16_t data_indx, code_indx;
+} Indices;
+
 int read_source(const char *file_name);
 
 enum INSTR_TYPE{

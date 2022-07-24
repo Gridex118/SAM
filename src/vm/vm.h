@@ -79,7 +79,7 @@ enum ERROR_CODES{
 enum MEMORY_SECTIONS{ VAR, CODE };
 
 extern uint16_t stack[MAX_STACK_LENGTH];
-extern uint16_t var_store[MEM_CELL_COUNT/2];
+extern uint16_t data_store[MEM_CELL_COUNT/2];
 extern uint16_t code_store[MEM_CELL_COUNT/2];
 extern uint16_t reg_data[R_COUNT];
 
@@ -91,8 +91,6 @@ extern uint16_t reg_data[R_COUNT];
 
 #define OPCODE(instruction) (instruction >> 12)
 
-void copy_instructions_to_memory(uint16_t *instructions, uint16_t size);
-void copy_data_to_memory(uint16_t *data, uint16_t size);
 void execute_instruction(uint16_t instruction);
 void run_machine();
 
