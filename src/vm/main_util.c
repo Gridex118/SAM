@@ -1,7 +1,6 @@
 #include "./main_util.h"
 #include "./vm.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 // It has been assumed that the source file contains only hexadecimal numbers
 
@@ -10,19 +9,11 @@ char HEX_DIGITS[HEX_DIGIT_COUNT] = {
     '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
-InstrCandidate* init_instr_candidate(){
-    InstrCandidate *incand = (InstrCandidate*) malloc(sizeof(InstrCandidate));
+void init_instr_candidate(InstrCandidate *incand){
     incand->read_digit = FALSE;
     incand->skip_instr = FALSE;
     incand->instr = 0;
     incand->instr_digit_index = 0;
-    return incand;
-}
-
-InstrCandidate* reset_incand(InstrCandidate *old_incand){
-    InstrCandidate *incand = init_instr_candidate();
-    incand->type = old_incand->type;
-    return incand;
 }
 
 static inline uint8_t hex_to_dec(const char hex_digit){
@@ -70,8 +61,10 @@ int parse_instr(InstrCandidate *incand, Indices *indices){
     incand->instr += (decimal << shift_count);
     if (incand->instr_digit_index == 3){
         store_instr(incand, indices);
-        *incand = *(reset_incand(incand));
-    } else { ++(incand->instr_digit_index); }
+        init_instr_candidate(incand);
+    } else {
+        ++(incand->instr_digit_index);
+    }
     if (incand->skip_instr){
         incand->skip_instr = FALSE;
     }
@@ -82,19 +75,19 @@ int read_source(const char *file_name){
     Indices indices = {0, 0};
     FILE* source_file;
     if ((source_file = fopen(file_name, "r")) == NULL){ return -1; }
-    InstrCandidate* incand = init_instr_candidate();
-    while ((incand->char_read = fgetc(source_file)) != EOF){
-        if (is_whitespace(incand->char_read)){
+    InstrCandidate incand;
+    init_instr_candidate(&incand);
+    while ((incand.char_read = fgetc(source_file)) != EOF){
+        if (is_whitespace(incand.char_read)){
             // Ignore whitespace
-        } else if (incand->char_read == 'x'){
+        } else if (incand.char_read == 'x'){
             // Start reading (0x hexadecimal representation)
-            incand->read_digit = TRUE;
+            incand.read_digit = TRUE;
         } else {
-            if (incand->read_digit){
-                if (parse_instr(incand, &indices) == -1){ return -1; }
+            if (incand.read_digit){
+                if (parse_instr(&incand, &indices) == -1){ return -1; }
             }
         }
     }
-    free(incand);
     return 0;
 }
