@@ -26,6 +26,7 @@ enum OPCODE{
     STORER,    // Store into Register from Top of the Stack 
     JMP,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
     IO,    // Handle Input or Output 
+    FUNCT,    // Handle function call and return
     HALT    // Stop Execution 
 };
 
@@ -55,6 +56,8 @@ enum ESCAPE_SEQUENCES{
 };
 
 enum JUMP_OPTIONS{ UNCOND, COND };
+
+enum FUNCT_OPTIONS{ CALL, RETURN };
 
 enum REGISTERS{
     Ra,

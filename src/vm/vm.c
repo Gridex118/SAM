@@ -241,8 +241,10 @@ void handle_reg_load(uint16_t reg_index){
 }
 
 void handle_jump(uint16_t instruction){
-    uint16_t new_ip = eff_addr(pop(), Rcbindx);
-    switch(instruction & 0x0FFF){
+    uint8_t option = ((instruction & 0x0800) >> 11);
+    uint8_t jmp_indx = (instruction & 0x7FF);
+    uint16_t new_ip = eff_addr(jmp_indx, Rcbindx);
+    switch(option){
         case UNCOND:
             IP = new_ip;
             break;
@@ -251,6 +253,27 @@ void handle_jump(uint16_t instruction){
                 IP = new_ip;
                 reg_data[Rcom] = FALSE;
             }
+            break;
+    }
+}
+
+void handle_function(uint16_t instruction){
+    uint8_t option = ((instruction & 0x0800) >> 11);
+    uint8_t jmp_indx = (instruction & 0x7FF);
+    switch(option){
+        case CALL:{
+            push(IP);
+            push(reg_data[Rbindx]);
+            reg_data[Rc] =  SP;
+            handle_jump(0x0000 + jmp_indx);
+        }
+            break;
+        case RETURN:
+            while (SP > reg_data[Rc]){
+                pop();
+            }
+            reg_data[Rbindx] = pop();
+            IP = pop();
             break;
     }
 }
@@ -290,11 +313,14 @@ void execute_instruction(uint16_t instruction){
         case LOADR:
             handle_reg_load(instruction & 0x0FFF);
             break;
+        case JMP:
+            handle_jump(instruction);
+            break;
         case IO:
             handle_input_output(instruction);
             break;
-        case JMP:
-            handle_jump(instruction);
+        case FUNCT:
+            handle_function(instruction);
             break;
         case HALT:
             reg_data[Rhlt] = TRUE;
