@@ -1,7 +1,7 @@
-#include <stdint.h>
-
 #ifndef VM_H
 #define VM_H
+
+#include <stdint.h>
 
 #define MEM_CELL_COUNT 0x0200    // 512 memory cells, 2 bytes each - 1KiB
 #define MAX_STACK_LENGTH 0x0014

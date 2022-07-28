@@ -1,3 +1,5 @@
+#ifndef MAIN_UTIL_H
+#define MAIN_UTIL_H
 #include <stdint.h>
 
 typedef struct{
@@ -18,3 +20,5 @@ enum INSTR_TYPE{
 };
 
 #define is_whitespace(character) ((character == ' ') || (character == '\n'))
+
+#endif
