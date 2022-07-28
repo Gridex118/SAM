@@ -1,9 +1,5 @@
 #include <stdint.h>
 
-#define HEX_DIGIT_COUNT 16
-
-extern char HEX_DIGITS[HEX_DIGIT_COUNT];
-
 typedef struct{
     char char_read;
     unsigned short read_digit, type, skip_instr;

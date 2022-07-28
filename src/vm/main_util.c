@@ -1,13 +1,8 @@
-#include "./main_util.h"
-#include "./vm.h"
+#include "main_util.h"
+#include "vm.h"
 #include <stdio.h>
 
 // It has been assumed that the source file contains only hexadecimal numbers
-
-char HEX_DIGITS[HEX_DIGIT_COUNT] = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8',
-    '9', 'A', 'B', 'C', 'D', 'E', 'F'
-};
 
 void init_instr_candidate(InstrCandidate *incand){
     incand->read_digit = FALSE;
@@ -17,13 +12,11 @@ void init_instr_candidate(InstrCandidate *incand){
 }
 
 static inline uint8_t hex_to_dec(const char hex_digit){
-    for (int i = 0; i < HEX_DIGIT_COUNT; ++i){
-        if (hex_digit == HEX_DIGITS[i]){
-            return i;
-        }
-    }
-     // If program reaches this point, we conclude that no character was matched
-    return -1;
+    if ((hex_digit >= '0') && (hex_digit <= '9')){
+        return (hex_digit - '0');
+    } else if ((hex_digit >= 'A') && (hex_digit <= 'F')){
+        return (10 + (hex_digit - 'A'));
+    } else { return -1; }
 }
 
 void toggle_storage_type(InstrCandidate *incand){

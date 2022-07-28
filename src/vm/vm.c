@@ -1,6 +1,7 @@
-#include "./vm.h"
+#include "vm.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 uint16_t stack[MAX_STACK_LENGTH];
 uint16_t data_store[MEM_CELL_COUNT/2];
@@ -8,6 +9,7 @@ uint16_t code_store[MEM_CELL_COUNT/2];
 uint16_t reg_data[R_COUNT];
 
 static inline void push(uint16_t data){
+    assert(SP < 10);
     stack[SP++] = data;
 }
 
@@ -32,9 +34,9 @@ static inline uint8_t get_byte(uint16_t word, uint8_t order){
 
 static inline uint16_t eff_addr(uint16_t base_addr, uint16_t base_indx){
     if (base_indx == Rcbindx){
-        return get_byte(reg_data[Rbindx], LOW) + base_addr;
+        return (get_byte(reg_data[Rbindx], LOW) + base_addr);
     } else if (base_indx == Rvbindx) {
-        return get_byte(reg_data[Rbindx], HIGH) + base_addr;
+        return (get_byte(reg_data[Rbindx], HIGH) + base_addr);
     } else {
         return -1;
     }
@@ -57,6 +59,7 @@ void print_string(){
 void push_input(uint8_t data_type){
     char raw_input[5];    // 2^16 has 5 digits
     fgets(raw_input, 5, stdin);
+    assert(raw_input != NULL);
     long num;
     switch(data_type){
         case INTEGER:
@@ -242,7 +245,7 @@ void handle_reg_load(uint16_t reg_index){
 
 void handle_jump(uint16_t instruction){
     uint8_t option = ((instruction & 0x0800) >> 11);
-    uint8_t jmp_indx = (instruction & 0x7FF);
+    uint16_t jmp_indx = (instruction & 0x7FF);
     uint16_t new_ip = eff_addr(jmp_indx, Rcbindx);
     switch(option){
         case UNCOND:
@@ -259,13 +262,13 @@ void handle_jump(uint16_t instruction){
 
 void handle_function(uint16_t instruction){
     uint8_t option = ((instruction & 0x0800) >> 11);
-    uint8_t jmp_indx = (instruction & 0x7FF);
+    uint16_t jmp_indx = (instruction & 0x7FF);
     switch(option){
         case CALL:{
             push(IP);
             push(reg_data[Rbindx]);
             reg_data[Rc] =  SP;
-            handle_jump(0x0000 + jmp_indx);
+            handle_jump(jmp_indx);
         }
             break;
         case RETURN:
