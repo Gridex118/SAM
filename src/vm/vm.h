@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define MEM_CELL_COUNT 0x0200    // 512 memory cells, 2 bytes each - 1KiB
-#define MAX_STACK_LENGTH 0x0014
+#define MAX_STACK_LENGTH 0x000F
 
 #define len(arr, base_size) (sizeof(arr) / base_size)
 
@@ -43,7 +43,7 @@ enum LOGICAL_OPERATIONS{ AND, OR, NOT };
 
 enum BSHIFT_PARA{ LEFT, RIGHT };
 
-enum COMPARISON_PARA{ EQL, LS, GR };
+enum COMPARISON_PARA{ EQL, NEQL, LS, GR };
 
 enum IO_PARA{
     INPUT, PRINT, PRINT_ESEQ
@@ -76,23 +76,13 @@ enum REGISTERS{
 
 enum ERROR_CODES{
     ILLEGAL_PARAMETER = 1, REGISTER_ACCESS_DENIED, STACK_UNDERFLOW,
-    ZERO_DIV_ERROR
+    STACK_OVERFLOW, ZERO_DIV_ERROR
 };
 
 enum MEMORY_SECTIONS{ VAR, CODE };
 
-extern uint16_t stack[MAX_STACK_LENGTH];
 extern uint16_t data_store[MEM_CELL_COUNT/2];
 extern uint16_t code_store[MEM_CELL_COUNT/2];
-extern uint16_t reg_data[R_COUNT];
-
-#define IP reg_data[Rip]
-#define SP reg_data[Rsp]
-#define CODE_BASE_INDEX (reg_data[Rbindx] & 0x00FF)
-
-#define MACHINE_IS_RUNNING (reg_data[Rhlt] == FALSE)
-
-#define OPCODE(instruction) (instruction >> 12)
 
 void run_machine();
 

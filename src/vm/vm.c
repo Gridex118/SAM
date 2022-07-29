@@ -8,9 +8,20 @@ uint16_t data_store[MEM_CELL_COUNT/2];
 uint16_t code_store[MEM_CELL_COUNT/2];
 uint16_t reg_data[R_COUNT];
 
+#define IP reg_data[Rip]
+#define SP reg_data[Rsp]
+#define CODE_BASE_INDEX (reg_data[Rbindx] & 0x00FF)
+
+#define MACHINE_IS_RUNNING (reg_data[Rhlt] == FALSE)
+
+#define OPCODE(instruction) (instruction >> 12)
+
 static inline void push(uint16_t data){
-    assert(SP < 10);
-    stack[SP++] = data;
+    if (SP < MAX_STACK_LENGTH){
+        stack[SP++] = data;
+    } else {
+        reg_data[Rerr] = STACK_OVERFLOW;
+    }
 }
 
 static inline uint16_t pop(){
@@ -172,6 +183,9 @@ void handle_comparison(uint16_t instruction){
         case EQL:
             reg_data[Rcom] = (pop() == pop());
             break;
+        case NEQL:
+            reg_data[Rcom] = (pop() != pop());
+            break;
         // Since stack[SP-2] is the first operand, the comparison signs must be reversed
         case LS:
             reg_data[Rcom] = (pop() > pop());
@@ -191,8 +205,8 @@ void handle_memory_load(uint16_t parameters){
 }
 
 void handle_memory_storage(uint16_t parameters){
-    uint16_t address = (parameters & 0x00FF);
-    switch((parameters & 0x0F00) >> 8){
+    uint16_t address = (parameters & 0x07FF);
+    switch((parameters & 0x0800) >> 11){
         case VAR:{
             data_store[eff_addr(address, Rvbindx)] = pop();
             break;
