@@ -1,8 +1,8 @@
 0xFFFE                                     CODE SECTION A
 
-0x000A 0x2000 0x9000                       PUSH, DUPLICATE AND STORE 10
-0x000F 0x2000 0x9001                       PUSH, DUPLICATE AND STORE 15
-0x3000 0x2000                              ADD 10 AND 15, DUPLICATE
-0xC000                                     GET INPUT <-- L1
-0x6001 0xB806                              IF NOT EQUAL GOTO L1
+0x000A                                     PUSH 10
+0x000F                                     PUSH 15
+0x3000 0x2000                              ADD 10 AND 15, (DUPLICATE <-- L1)
+0xC000                                     GET INPUT
+0x6001 0xB802                              IF NOT EQUAL GOTO L1
 0xE000                                     HALT
