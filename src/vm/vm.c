@@ -343,13 +343,13 @@ void execute_instruction(uint16_t instruction){
             reg_data[Rhlt] = TRUE;
             break;
     }
-    if ((CODE_BASE_INDEX + (++IP)) >= MEM_CELL_COUNT/2){
-        reg_data[Rhlt] = TRUE;
-    }
 }
 
 void run_machine(){
     while (MACHINE_IS_RUNNING){
         execute_instruction(code_store[CODE_BASE_INDEX + IP]);
+        if ((CODE_BASE_INDEX + (++IP)) >= MEM_CELL_COUNT/2){
+            reg_data[Rhlt] = TRUE;
+        }
     }
 }
