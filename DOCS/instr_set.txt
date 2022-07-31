@@ -1,0 +1,93 @@
+#Opcodes
+Each opcode is 4-bits long.
+
+## PUSH (0)
+Push data into stack.
+One paramater: data to be pushed.
+
+## POP (1)
+Pop data from stack; data is stored in general register a.
+No parameters.
+
+## DUP (2)
+Duplicate the data at the top of the stack.
+No parameters.
+
+## ARITH (3)
+Apply an arithmetic operation on the top two elements of the stack.
+One parameter: operation
+    ### ADD (0)
+    ### SUB (1)
+    ### MUL (2)
+    ### DIV (3) - Integer division
+
+## LOGIC (4)
+Apply a logical operation on the top two elements of the stack(top element in case of NOT).
+One parameter: operation
+    ### AND (0)
+    ### OR (1)
+    ### NOT (2)
+
+## BSHIFT (5)
+Apply bit shifting on the top element of the stack. Two parameters:
+    ### Direction (4-bits)
+        #### LEFT (0)
+        #### RIGHT (1)
+    ### Shift by (8-bits)
+
+## COMPARE (6)
+Compare the top two elements of the stack, and store the result in the comparison register.
+One parameter: operation
+    ### EQL (0) - Equal to
+    ### NEQL (1) - Not equal to
+    ### LS (2) - Less than
+    ### GR (3) - Greater than
+
+## LOADM (7)
+Push data from memory. Two parameters:
+    ### Memory section (1-bit)
+        #### VAR (0)
+        #### CODE (1)
+    ### Address (11-bits)
+
+## LOADR (8)
+Push data from register.
+One paramater: Register
+
+## STOREM (9)
+Pop into memory. Two paramaters: same as LOADM
+
+## STORER (A)
+Pop into register; note that certain registers are read only.
+One paramater: same as LOADR
+
+## JMP (B)
+Jump to another instruction. Two paramaters:
+    ### Conditionality (1-bit)
+        #### Unconditional (0)
+        #### Conditional (1)
+    ### Address (11-bits)
+
+## IO (C)
+Handle input output. Two paramaters:
+    ### Operation (6-bits), each with different 6-bit sub parameters
+        #### INPUT (0)
+            ##### INTEGER (0)
+            ##### CHAR (2)
+        #### PRINT (1)
+            ##### INTEGER (0)
+            ##### STRING (1)
+        #### PRINT_ESEQ (2)
+            ##### NEWLINE (0)
+            ##### RETURN_CARRIAGE (1)
+
+## FUNCT (D)
+Handle calling and returning of functions. Two paramaters:
+    ### Operation (1-bit)
+        #### CALL (0)
+        #### RETURN (1)
+    ### Function Address (11-bit)
+
+## HALT (E)
+Halt the machine.
+No paramaters.

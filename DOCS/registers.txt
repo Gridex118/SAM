@@ -1,0 +1,24 @@
+# General purpose registers
+    ## Ra (0)
+    ## Rb (1)
+    ## Rc (2)
+
+# Stack pointer
+    ## Rsp (3)
+
+# Instruction pointer
+    ## Rip (4)
+
+# Comparison register
+    ## Rcom (5)
+
+# Base Indices
+    ## Rbindx
+        ### Rcbindx (A)
+        ### Rvbindx (B)
+
+# Halt status register
+    ## Rhlt (7)
+
+# Error code register
+    ## Rerr (8)

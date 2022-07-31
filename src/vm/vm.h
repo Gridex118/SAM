@@ -8,26 +8,14 @@
 
 #define len(arr, base_size) (sizeof(arr) / base_size)
 
-enum BOOL{
-    FALSE, TRUE
-};
+enum BOOL{ FALSE, TRUE };
 
 enum OPCODE{
-    PUSH,    // Push Data into Stack 
-    POP,    // Pop Data from Stock into Register 
-    DUP,    // Duplicate Stack[SP-1]
-    ARITH,    // Handle Arithmetic Operations 
-    LOGIC,    // Handle Logical Operations
-    BSHIFT,    // Handle Bit Shift 
-    COMPARE,    // Compare Stack[SP-2] and Stack[SP-1] 
-    LOADM,    // Load from Memory to Top of the Stack 
-    LOADR,    // Load from Register to Top of Stack 
-    STOREM,    // Store into Memory from Top of the Stack
-    STORER,    // Store into Register from Top of the Stack 
-    JMP,    // Goto Rcbindx + Stack[SP-1] - Conditional if Parameter = COND
-    IO,    // Handle Input or Output 
-    FUNCT,    // Handle function call and return
-    HALT    // Stop Execution 
+    PUSH, POP, DUP, ARITH,
+    LOGIC, BSHIFT, COMPARE,
+    LOADM, LOADR, STOREM,
+    STORER, JMP, IO,
+    FUNCT, HALT
 };
 
 #define CODE_SECTION_START 0xFFFE
@@ -60,18 +48,11 @@ enum JUMP_OPTIONS{ UNCOND, COND };
 enum FUNCT_OPTIONS{ CALL, RETURN };
 
 enum REGISTERS{
-    Ra,
-    Rb,    // a, b, c - General Purpose Registers 
-    Rc,
-    Rsp,    // Stack Pointer 
-    Rip,    // Instruction Pointer 
-    Rcom,    // Comparison Data Storage 
-    Rbindx,    // Base Index: VAR CODE
-    Rhlt,    // Machine Halt Status
-    Rerr,    // Error Code Register
-    R_COUNT,    // Number of Registers 
-    Rcbindx,    // Code Base Index
-    Rvbindx,    // Variable Store Base Index
+    Ra, Rb, Rc,
+    Rsp, Rip, Rcom, 
+    Rbindx, Rhlt, Rerr,
+    R_COUNT,
+    Rcbindx, Rvbindx
 };
 
 enum ERROR_CODES{

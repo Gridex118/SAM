@@ -199,14 +199,22 @@ void handle_comparison(uint16_t instruction){
 }
 
 void handle_memory_load(uint16_t parameters){
-    uint16_t address = (parameters & 0x00FF);
-    uint8_t base = ((parameters & 0x0F00) >> 8);
-    push(data_store[eff_addr(address, base)]);
+    uint16_t address = (parameters & 0x07FF);
+    uint16_t section = ((parameters & 0x0800) >> 11);
+    switch(section){
+        case VAR:
+            push(data_store[eff_addr(address, Rvbindx)]);
+            break;
+        case CODE:
+            push(code_store[eff_addr(address, Rcbindx)]);
+            break;
+    }
 }
 
 void handle_memory_storage(uint16_t parameters){
     uint16_t address = (parameters & 0x07FF);
-    switch((parameters & 0x0800) >> 11){
+    uint16_t section = ((parameters & 0x0800) >> 11);
+    switch(section){
         case VAR:{
             data_store[eff_addr(address, Rvbindx)] = pop();
             break;
