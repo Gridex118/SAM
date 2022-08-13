@@ -1,0 +1,5 @@
+.CODE SECTION
+
+push 12
+push 13
+arith add
