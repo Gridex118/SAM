@@ -10,11 +10,16 @@ bool is_alpha(char character){
 }
 
 bool is_terminal(char character){
-    return (character == ' ') || (character == '\n' || (character == EOF));
+    return (character == ' ') || (character == '\n') (character == EOF);
 }
 
 bool is_numeric(char character){
     return (character >= '0') && (character <= '9');
+}
+
+ostream& operator<<(ostream &os, Token &token){
+    os << token.value << " " << token.type;
+    return os;
 }
 
 void Tokenizer::next(){
@@ -23,11 +28,10 @@ void Tokenizer::next(){
 
 Tokenizer::Tokenizer(char *source_name){
     source.open(source_name);
-    line = 1;
     next();
 }
 
-TokenContainer* Tokenizer::tokenize(){
+int Tokenizer::tokenize(){
     current_token = new Token;
     while (current_char != EOF) {
         switch (current_char) {
@@ -48,9 +52,10 @@ TokenContainer* Tokenizer::tokenize(){
                     current_token->type = TOKENS::NUMBER;
                 } else if (current_char == '.') {
                     current_token->type = TOKENS::LABEL;
-                    next();
+                    next();    // Skip the dot
                 }
                 while (!is_terminal(current_char)) {
+                    cout << (int) current_char << '\n';
                     current_token->value += current_char;
                     next();
                 }
@@ -58,9 +63,8 @@ TokenContainer* Tokenizer::tokenize(){
                 break;
         }
     }
-    for (auto i = tokens.begin(); i < tokens.end(); ++i){
-        cout << (*i)->value << ' ';
-        cout << (*i)->type << '\n';
-    }
-    return &tokens;
+    // for (auto i = tokens.begin(); i < tokens.end(); ++i){
+    //     cout << **i << '\n';
+    // }
+    return 0;
 }

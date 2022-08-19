@@ -8,8 +8,7 @@ int main(int argc, char **argv){
         cout << "Syntax: sasm SOURCE [SINK] \n";
     } else {
         lexer::Tokenizer tokenizer(argv[1]);
-        lexer::TokenContainer *tokens;
-        if ((tokens = tokenizer.tokenize()) == NULL) return -1;
+        if (tokenizer.tokenize() == -1) return -1;
     }
     return 0;
 }

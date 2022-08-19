@@ -1,3 +1,5 @@
+.SECTION CODE
 push 12
 push 13
-arith add
+arith
+add

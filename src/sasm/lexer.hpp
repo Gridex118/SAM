@@ -26,11 +26,11 @@ namespace lexer{
             TokenContainer tokens;
             Token *current_token;
             char current_char;
-            int line;
+            int line = 1;
             void next();
         public:
             Tokenizer(char *source_name);
-            TokenContainer* tokenize();
+            int tokenize();
     };
 
 
