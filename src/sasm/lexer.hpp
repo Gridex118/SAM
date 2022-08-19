@@ -8,13 +8,13 @@
 namespace lexer{
 
     enum TOKENS{
-        STRING, NUMBER, SEMICOLON,
-        OPCODE, PARAMETER
+        STRING, NUMBER, LABEL
     };
 
     struct Token{
         TOKENS type;
         std::string value;
+        int line;
         Token(){ value = ""; }
     };
 
@@ -26,11 +26,10 @@ namespace lexer{
             TokenContainer tokens;
             Token *current_token;
             char current_char;
-            char* next();
+            int line;
+            void next();
         public:
-            Tokenizer(char *source_name){
-                source.open(source_name);
-            }
+            Tokenizer(char *source_name);
             TokenContainer* tokenize();
     };
 
