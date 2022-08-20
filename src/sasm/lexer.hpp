@@ -8,7 +8,7 @@
 namespace lexer{
 
     enum TOKENS{
-        STRING, NUMBER, LABEL
+        STRING, NUMBER, DIRECTIVE, PLAIN
     };
 
     struct Token{
@@ -28,6 +28,7 @@ namespace lexer{
             char current_char;
             int line = 1;
             void next();
+            void add_char_to_token();
         public:
             Tokenizer(char *source_name);
             int tokenize();

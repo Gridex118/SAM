@@ -1,5 +1,5 @@
 .SECTION CODE
 push 12
 push 13
-arith
-add
+store "hello"
+arith add
