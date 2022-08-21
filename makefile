@@ -2,7 +2,7 @@ C_ARGS = -Wall -O0 -g
 CPP_ARGS = -Wall -O0 -g
 
 VM_SRC = src/vm/vm.c src/vm/main_util.c src/vm/main.c
-SASM_SRC = src/sasm/lexer.cpp src/sasm/main.cpp
+SASM_SRC = src/sasm/token_container.cpp src/sasm/lexer.cpp src/sasm/main.cpp
 
 all: vm.out sasm.out
 

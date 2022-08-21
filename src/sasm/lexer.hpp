@@ -18,17 +18,30 @@ namespace lexer{
         Token(){ value = ""; }
     };
 
-    typedef std::vector<Token*> TokenContainer;
+    class Tokenizer;
+
+    class TokenContainer : public std::vector<Token*>{
+        private:
+            Token *current_token = new Token;
+        protected:
+            inline void reset_token();
+        public:
+            void push_token();
+            bool is_type(TOKENS type);
+            void set_type(TOKENS type);
+            void set_type(char character);
+            void set_line(int line);
+            void concat_to_value(char character);
+    };
 
     class Tokenizer{
         private:
             std::ifstream source;
             TokenContainer tokens;
-            Token *current_token;
             char current_char;
             int line = 1;
-            void next();
-            void add_char_to_token();
+            inline void next();
+            inline void add_char_to_token();
         public:
             Tokenizer(char *source_name);
             int tokenize();
