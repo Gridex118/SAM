@@ -5,7 +5,7 @@
 using namespace std;
 using namespace lexer;
 
-inline bool is_terminal(char character){
+inline bool is_terminal(const char character){
     return (character == ' ') || (character == '\n')
             || (character == '\r');
 }
@@ -24,6 +24,12 @@ inline void Tokenizer::add_char_to_token(){
     next();
 }
 
+inline void Tokenizer::consume_string(){
+    next();
+    while (current_char != '\"') add_char_to_token();
+    next();
+}
+
 int Tokenizer::tokenize(){
     while (source) {
         switch (current_char) {
@@ -33,10 +39,8 @@ int Tokenizer::tokenize(){
             case '\"':
                 tokens.set_type(TOKENS::STRING);
                 tokens.set_line(line);
-                next();
-                while (current_char != '\"') add_char_to_token();
-                next();
-                tokens.push_token();
+                consume_string();
+                if (tokens.push_token() == -1) return -1;
                 break;
             case '\n':
                 ++line;
@@ -49,7 +53,7 @@ int Tokenizer::tokenize(){
                 tokens.set_type(current_char);
                 if (tokens.is_type(TOKENS::DIRECTIVE)) next();
                 while (!is_terminal(current_char) && source) add_char_to_token();
-                tokens.push_token();
+                if (tokens.push_token() == -1) return -1;
                 break;
         }
     }

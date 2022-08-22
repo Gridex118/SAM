@@ -3,11 +3,11 @@
 using namespace std;
 using namespace lexer;
 
-inline bool is_alpha(char character){
+inline bool is_alpha(const char character){
     return (character >= 'A') && (character <= 'z');
 }
 
-inline bool is_numeric(char character){
+inline bool is_numeric(const char character){
     return (character >= '0') && (character <= '9');
 }
 
@@ -37,11 +37,13 @@ void TokenContainer::set_type(char character){
     }
 }
 
-inline void TokenContainer::reset_token(){
+inline int TokenContainer::reset_token(){
     current_token = new Token;
+    if (current_token == NULL) return -1;
+    else return 0;
 }
 
-void TokenContainer::push_token(){
+int TokenContainer::push_token(){
     push_back(current_token);
-    reset_token();
+    return reset_token();
 }
