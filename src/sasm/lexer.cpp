@@ -14,7 +14,7 @@ inline void Tokenizer::next(){
     source >> noskipws >> current_char;
 }
 
-Tokenizer::Tokenizer(char *source_name){
+Tokenizer::Tokenizer(const char *source_name){
     source.open(source_name);
     next();
 }

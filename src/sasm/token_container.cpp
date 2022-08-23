@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace lexer;
@@ -39,11 +40,14 @@ void TokenContainer::set_type(char character){
 
 inline int TokenContainer::reset_token(){
     current_token = new Token;
-    if (current_token == NULL) return -1;
+    if (current_token == NULL) {
+        cerr << "Ran out of memory\n";
+        return -1;
+    }
     else return 0;
 }
 
 int TokenContainer::push_token(){
-    push_back(current_token);
+    tokens.push_back(current_token);
     return reset_token();
 }
