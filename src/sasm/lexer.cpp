@@ -30,6 +30,10 @@ inline void Tokenizer::consume_string(){
     next();
 }
 
+Token* Tokenizer::next_token(){
+    return tokens[next_token_index_for_parsing++];
+}
+
 int Tokenizer::tokenize(){
     while (source) {
         switch (current_char) {

@@ -29,6 +29,7 @@ namespace lexer{
             void set_type(char character);
             void set_line(int line);
             void concat_to_value(char character);
+            Token* operator[](int index);
     };
 
     class Tokenizer{
@@ -36,6 +37,7 @@ namespace lexer{
             std::ifstream source;
             TokenContainer tokens;
             char current_char;
+            int next_token_index_for_parsing = 0;
             inline void next();
             inline void add_char_to_token();
             inline void consume_string();
@@ -43,6 +45,7 @@ namespace lexer{
             int line = 1;
             Tokenizer(const char *source_name);
             int tokenize();
+            Token* next_token();
     };
 
 }

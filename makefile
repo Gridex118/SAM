@@ -7,6 +7,7 @@ VM_SRC = src/vm/vm.c \
 
 SASM_SRC = src/sasm/token_container.cpp \
 	   src/sasm/lexer.cpp \
+	   src/sasm/parser.cpp \
 	   src/sasm/main.cpp
 
 all: vm.out sasm.out

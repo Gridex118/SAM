@@ -51,3 +51,7 @@ int TokenContainer::push_token(){
     tokens.push_back(current_token);
     return reset_token();
 }
+
+Token* TokenContainer::operator[](int index){
+    return tokens[index];
+}
