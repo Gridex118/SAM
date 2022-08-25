@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 
-namespace lexer{
+namespace lex{
 
     enum TOKENS{
         STRING, NUMBER, DIRECTIVE, PLAIN

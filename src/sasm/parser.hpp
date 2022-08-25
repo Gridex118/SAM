@@ -2,16 +2,20 @@
 #define PARSER_H
 
 #include "lexer.hpp"
-namespace parser {
+
+namespace parse {
+
     class Parser{
         private:
             std::ofstream sink;
-            lexer::Tokenizer *tokenizer;
+            lex::Tokenizer *tokenizer;
         public:
             Parser(
-                const char *sink_name, lexer::Tokenizer *tokenizer
+                const char *sink_name, lex::Tokenizer *tokenizer
             ): tokenizer(tokenizer) { sink.open(sink_name); };
             int parse();
     };
+
 }
+
 #endif

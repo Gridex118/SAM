@@ -2,7 +2,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace lexer;
+using namespace lex;
 
 inline bool is_alpha(const char character){
     return (character >= 'A') && (character <= 'z');

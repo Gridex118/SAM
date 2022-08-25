@@ -3,7 +3,7 @@
 #include <algorithm>
 
 using namespace std;
-using namespace lexer;
+using namespace lex;
 
 inline bool is_terminal(const char character){
     return (character == ' ') || (character == '\n')
