@@ -52,6 +52,7 @@ int TokenContainer::push_token(){
     return reset_token();
 }
 
-Token* TokenContainer::operator[](int index){
+Token* TokenContainer::operator[](unsigned int index){
+    if (index >= tokens.size()) return NULL;
     return tokens[index];
 }

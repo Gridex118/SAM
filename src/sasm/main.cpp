@@ -12,10 +12,15 @@ int main(int argc, char **argv){
         if (tokenizer.tokenize() == -1) {
             cerr << "Error encountered at line" << tokenizer.line;
             cerr << "While tokenizing\n";
+            return -1;
         };
-        parse::Parser parser(
-            (argc == 3) ? argv[2] : "a.txt", &tokenizer
-        );
+        parse::Parser parser((argc == 3) ? argv[2] : "a.txt",
+                            &tokenizer
+                            );
+        if (parser.parse() == -1) {
+            cerr << "Error encountered while parsing\n";
+            return -1;
+        }
     }
     return 0;
 }

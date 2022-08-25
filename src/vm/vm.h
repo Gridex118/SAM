@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #ifndef VM_H
 #define VM_H
 
@@ -67,4 +71,8 @@ extern uint16_t code_store[MEM_CELL_COUNT/2];
 
 void run_machine();
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

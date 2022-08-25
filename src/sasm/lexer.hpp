@@ -29,7 +29,7 @@ namespace lex{
             void set_type(char character);
             void set_line(int line);
             void concat_to_value(char character);
-            Token* operator[](int index);
+            Token* operator[](unsigned int index);
     };
 
     class Tokenizer{
