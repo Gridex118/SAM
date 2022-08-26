@@ -45,7 +45,7 @@ namespace lex{
             int line = 1;
             Tokenizer(const char *source_name);
             int tokenize();
-            Token* next_token();
+            Token* next_token_to_parse();
     };
 
 }

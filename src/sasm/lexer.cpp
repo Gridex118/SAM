@@ -30,7 +30,7 @@ inline void Tokenizer::consume_string(){
     next();
 }
 
-Token* Tokenizer::next_token(){
+Token* Tokenizer::next_token_to_parse(){
     return tokens[next_token_index_for_parsing++];
 }
 
