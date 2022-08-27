@@ -12,11 +12,13 @@ void init_instr_candidate(InstrCandidate *incand){
 }
 
 static inline uint8_t hex_to_dec(const char hex_digit){
-    if ((hex_digit >= '0') && (hex_digit <= '9')){
+    if ((hex_digit >= '0') && (hex_digit <= '9')) {
         return (hex_digit - '0');
-    } else if ((hex_digit >= 'A') && (hex_digit <= 'F')){
+    } else if ((hex_digit >= 'A') && (hex_digit <= 'F')) {
         return (10 + (hex_digit - 'A'));
-    } else { return -1; }
+    } else if ((hex_digit >= 'a') && (hex_digit <= 'f')) {
+        return (10 + (hex_digit - 'a'));
+    } else return -1;
 }
 
 void toggle_storage_type(InstrCandidate *incand){

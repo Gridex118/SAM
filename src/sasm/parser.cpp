@@ -6,6 +6,10 @@
 using namespace std;
 using namespace parse;
 
+inline void write(ofstream &sink, uint16_t instruction){
+    sink << "0x" << hex << instruction;
+}
+
 int match_opcode(const string &candidate){
     if (candidate == "push") return OPCODE::PUSH;
     else if (candidate == "pop") return OPCODE::POP;
@@ -44,6 +48,7 @@ int Parser::deal_with_directives(){
         int section_code = match_section(current_token->value);
         if (section_code != -1) {
             instruction += section_code;
+            write(sink, instruction);
         } else {
             cerr << "Illegal section specifier at line ";
             cerr << current_token->line << '\n';
@@ -62,6 +67,7 @@ int Parser::deal_with_directives(){
 int Parser::parse(){
     while ((current_token = tokenizer->next_token_to_parse()) != NULL){
         assert(current_token != NULL);
+        cout << current_token->value << '\n';
         if (current_token->type == lex::TOKENS::DIRECTIVE) {
             if (deal_with_directives() == -1) return -1;
         }
