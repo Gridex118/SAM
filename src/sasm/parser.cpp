@@ -55,7 +55,7 @@ int Parser::deal_with_directives(){
             return -1;
         }
     } else if (directive_type == DIRECTIVE::LABEL) {
-        // Store label name and line
+        data[current_token->value] = current_token->line;
     } else {
         cerr << "Illegal directive at line ";
         cerr << current_token->line << '\n';
@@ -64,18 +64,47 @@ int Parser::deal_with_directives(){
     return 0;
 }
 
+int Parser::deal_with_opcodes(){
+    int opcode = match_opcode(current_token->value);
+    if (opcode != -1) {
+        instruction += (opcode << 12);
+        switch (opcode) {
+            // Parameter free instructions
+            case OPCODE::POP:
+            case OPCODE::DUP:
+            case OPCODE::HALT:
+                break;
+            // Single parameter instructions
+            case OPCODE::PUSH:
+                current_token = tokenizer->next_token_to_parse();
+                instruction += 0;    // Convert the string into a number
+                break;
+            case OPCODE::ARITH:
+            case OPCODE::LOGIC:
+            case OPCODE::COMPARE:
+            case OPCODE::LOADR:
+            case OPCODE::STORER:
+                break;
+            // Double parameter instructions
+            case OPCODE::BSHIFT:
+            case OPCODE::LOADM:
+            case OPCODE::STOREM:
+            case OPCODE::JMP:
+            case OPCODE::IO:
+            case OPCODE::FUNCT:
+                break;
+        }
+    } else return -1;
+    return 0;
+}
+
 int Parser::parse(){
     while ((current_token = tokenizer->next_token_to_parse()) != NULL){
         assert(current_token != NULL);
-        cout << current_token->value << '\n';
         if (current_token->type == lex::TOKENS::DIRECTIVE) {
             if (deal_with_directives() == -1) return -1;
-        }
-        int opcode = match_opcode(current_token->value);
-        if (opcode != -1) {
-            instruction += (opcode << 12);
         } else {
-
+            if (deal_with_opcodes() == -1) return -1;
         }
     }
     return 0;

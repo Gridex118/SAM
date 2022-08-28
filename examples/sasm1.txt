@@ -1,5 +1,7 @@
 .SECTION CODE
 push 12
 push 13
-store "hello"
 arith add
+io print integer
+io print_eseq newline
+halt

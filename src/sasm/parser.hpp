@@ -3,6 +3,7 @@
 
 #include "lexer.hpp"
 #include <cstdint>
+#include <unordered_map>
 
 namespace parse {
 
@@ -12,7 +13,9 @@ namespace parse {
             lex::Tokenizer *tokenizer;
             lex::Token *current_token;
             uint16_t instruction = 0;
+            std::unordered_map<std::string, int> data;
             int deal_with_directives();
+            int deal_with_opcodes();
         public:
             Parser(
                 const char *sink_name, lex::Tokenizer *tokenizer
