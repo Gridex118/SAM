@@ -35,8 +35,11 @@ inline int match_directive(const string &candidate){
     else return -1;
 }
 
-inline int match_section(const string &candidate){
-    if (candidate == "CODE") return CODE_SECTION_START;
+inline int match_section(const string &candidate, Parser &parser){
+    if (candidate == "CODE") {
+        
+        return CODE_SECTION_START;
+    }
     else if (candidate == "MEM") return MEM_SECTION_START;
     else return -1;
 }
@@ -45,7 +48,7 @@ int Parser::deal_with_directives(){
     int directive_type = match_directive(current_token->value);
     current_token = tokenizer->next_token_to_parse();
     if (directive_type == DIRECTIVE::SECTION) {
-        int section_code = match_section(current_token->value);
+        int section_code = match_section(current_token->value, *this);
         if (section_code != -1) {
             instruction += section_code;
             write(sink, instruction);
@@ -69,21 +72,14 @@ int Parser::deal_with_opcodes(){
     if (opcode != -1) {
         instruction += (opcode << 12);
         switch (opcode) {
-            // Parameter free instructions
-            case OPCODE::POP:
-            case OPCODE::DUP:
-            case OPCODE::HALT:
-                break;
             // Single parameter instructions
             case OPCODE::PUSH:
-                current_token = tokenizer->next_token_to_parse();
-                instruction += 0;    // Convert the string into a number
-                break;
             case OPCODE::ARITH:
             case OPCODE::LOGIC:
             case OPCODE::COMPARE:
             case OPCODE::LOADR:
             case OPCODE::STORER:
+                state.parameters_due = 1;
                 break;
             // Double parameter instructions
             case OPCODE::BSHIFT:
@@ -92,6 +88,7 @@ int Parser::deal_with_opcodes(){
             case OPCODE::JMP:
             case OPCODE::IO:
             case OPCODE::FUNCT:
+                state.parameters_due = 2;
                 break;
         }
     } else return -1;
@@ -101,10 +98,30 @@ int Parser::deal_with_opcodes(){
 int Parser::parse(){
     while ((current_token = tokenizer->next_token_to_parse()) != NULL){
         assert(current_token != NULL);
-        if (current_token->type == lex::TOKENS::DIRECTIVE) {
-            if (deal_with_directives() == -1) return -1;
-        } else {
-            if (deal_with_opcodes() == -1) return -1;
+        switch (current_token->type) {
+            case lex::TOKENS::DIRECTIVE:
+                if (deal_with_directives() == -1) return -1;
+                break;
+            case lex::TOKENS::PLAIN:
+                if (deal_with_opcodes() == -1) {
+                    // Must be a parameter
+                }
+                break;
+            case lex::TOKENS::NUMBER:
+                while (state.parameters_due > 0) {
+                    // A switch? The parameter lengths for the instructions vary
+                    current_token = tokenizer->next_token_to_parse();
+                    --state.parameters_due;
+                }
+                break;
+            case lex::TOKENS::STRING:
+                if (state.mode != MODE::DATA) {
+                    cerr << "Error at line" << current_token->line << '\n';
+                    cerr << "Strings can not appear outside memory section\n";
+                    return -1;
+                } else {
+                    // Deal with string storage
+                }
         }
     }
     return 0;
