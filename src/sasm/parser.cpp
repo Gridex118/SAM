@@ -6,10 +6,6 @@
 using namespace std;
 using namespace parse;
 
-inline void write(ofstream &sink, uint16_t instruction){
-    sink << "0x" << hex << instruction;
-}
-
 int match_opcode(const string &candidate){
     if (candidate == "push") return OPCODE::PUSH;
     else if (candidate == "pop") return OPCODE::POP;
@@ -35,23 +31,21 @@ inline int match_directive(const string &candidate){
     else return -1;
 }
 
-inline int match_section(const string &candidate, Parser &parser){
-    if (candidate == "CODE") {
-        
-        return CODE_SECTION_START;
-    }
-    else if (candidate == "MEM") return MEM_SECTION_START;
-    else return -1;
+inline void Parser::write(){
+    sink << "0x" << hex << instruction;
+    instruction = 0;
 }
 
 int Parser::deal_with_directives(){
     int directive_type = match_directive(current_token->value);
     current_token = tokenizer->next_token_to_parse();
     if (directive_type == DIRECTIVE::SECTION) {
-        int section_code = match_section(current_token->value, *this);
-        if (section_code != -1) {
-            instruction += section_code;
-            write(sink, instruction);
+        if (current_token->value == "CODE") {
+            instruction = CODE_SECTION_START;
+            write();
+        } else if (current_token->value == "MEM") {
+            instruction = MEM_SECTION_START;
+            write();
         } else {
             cerr << "Illegal section specifier at line ";
             cerr << current_token->line << '\n';
@@ -102,16 +96,22 @@ int Parser::parse(){
             case lex::TOKENS::DIRECTIVE:
                 if (deal_with_directives() == -1) return -1;
                 break;
-            case lex::TOKENS::PLAIN:
-                if (deal_with_opcodes() == -1) {
-                    // Must be a parameter
-                }
-                break;
             case lex::TOKENS::NUMBER:
-                while (state.parameters_due > 0) {
-                    // A switch? The parameter lengths for the instructions vary
+                // A switch? The parameter lengths for the instructions vary
+                if (state.mode == MODE::CODE) {
                     current_token = tokenizer->next_token_to_parse();
                     --state.parameters_due;
+                    break;
+                } else ; // Fall through to case TOKENS::PLAIN, and report error
+            case lex::TOKENS::PLAIN:
+                if (state.mode != MODE::CODE) {
+                    cerr << "Error at line" << current_token->line << '\n';
+                    cerr << "Machine instructions can not appear ";
+                    cerr << "outside code section\n";
+                    return -1;
+                }
+                if (deal_with_opcodes() == -1) {
+                    // Either a parameter or an error
                 }
                 break;
             case lex::TOKENS::STRING:
