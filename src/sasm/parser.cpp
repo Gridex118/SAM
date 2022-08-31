@@ -6,6 +6,17 @@
 using namespace std;
 using namespace parse;
 
+vector<uint16_t>* string_to_words(string str){
+    vector<uint16_t> *words = new vector<uint16_t>;
+    for (unsigned int i = 0; i < str.length(); i += 2) {
+        words->push_back(
+            (static_cast<uint8_t>(str[i]) << 8)
+            + static_cast<uint8_t>(str[i+1])
+        );    // Consuming two charcters at a time
+    }
+    return words;
+}
+
 int match_opcode(const string &candidate){
     if (candidate == "push") return OPCODE::PUSH;
     else if (candidate == "pop") return OPCODE::POP;
@@ -32,7 +43,7 @@ inline int match_directive(const string &candidate){
 }
 
 inline void Parser::write(){
-    sink << "0x" << hex << instruction;
+    sink << "0x" << hex << instruction << ' ';
     instruction = 0;
 }
 
@@ -41,9 +52,11 @@ int Parser::deal_with_directives(){
     current_token = tokenizer->next_token_to_parse();
     if (directive_type == DIRECTIVE::SECTION) {
         if (current_token->value == "CODE") {
+            state.mode = MODE::CODE;
             instruction = CODE_SECTION_START;
             write();
         } else if (current_token->value == "MEM") {
+            state.mode = MODE::DATA;
             instruction = MEM_SECTION_START;
             write();
         } else {
@@ -105,7 +118,7 @@ int Parser::parse(){
                 } else ; // Fall through to case TOKENS::PLAIN, and report error
             case lex::TOKENS::PLAIN:
                 if (state.mode != MODE::CODE) {
-                    cerr << "Error at line" << current_token->line << '\n';
+                    cerr << "Error at line " << current_token->line << '\n';
                     cerr << "Machine instructions can not appear ";
                     cerr << "outside code section\n";
                     return -1;
@@ -116,11 +129,15 @@ int Parser::parse(){
                 break;
             case lex::TOKENS::STRING:
                 if (state.mode != MODE::DATA) {
-                    cerr << "Error at line" << current_token->line << '\n';
+                    cerr << "Error at line " << current_token->line << '\n';
                     cerr << "Strings can not appear outside memory section\n";
                     return -1;
                 } else {
-                    // Deal with string storage
+                    vector<uint16_t> *words = string_to_words(current_token->value);
+                    for (auto i = words->begin(); i < words->end(); ++i){
+                        instruction = *i;
+                        write();
+                    }
                 }
         }
     }
