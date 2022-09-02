@@ -12,9 +12,11 @@ namespace parse {
     typedef struct parser_state {
         unsigned short current_opcode: 4;
         unsigned short parameters_due: 2;
+        uint8_t parameter_sizes;
         MODE mode: 1;
         parser_state() {
             parameters_due = 0;
+            parameter_sizes = 0;
             mode = MODE::CODE;
         }
     } ParserState;

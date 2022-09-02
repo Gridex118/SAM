@@ -17,6 +17,64 @@ vector<uint16_t>* string_to_words(string str){
     return words;
 }
 
+unsigned short parameters_due_for_opcode(int &opcode){
+    switch (opcode) {
+        // Single parameter instructions
+        case OPCODE::PUSH:
+        case OPCODE::ARITH:
+        case OPCODE::LOGIC:
+        case OPCODE::COMPARE:
+        case OPCODE::LOADR:
+        case OPCODE::STORER:
+            return 1;
+            break;
+        // Double parameter instructions
+        case OPCODE::BSHIFT:
+        case OPCODE::LOADM:
+        case OPCODE::STOREM:
+        case OPCODE::JMP:
+        case OPCODE::IO:
+        case OPCODE::FUNCT:
+            return 2;
+            break;
+        default:
+            return 0;
+    }
+}
+
+unsigned short get_parameter_sizes(int opcode){
+    switch (opcode) {
+        case OPCODE::BSHIFT:
+            return 0x0084;
+            break;
+        case OPCODE::LOADM:
+            return 0x00B1;
+            break;            
+        case OPCODE::STOREM:
+            return 0x00B1;
+            break;
+        case OPCODE::JMP:
+            return 0x00B1;
+            break;
+        case OPCODE::IO:
+            return 0x0066;
+            break;
+        case OPCODE::FUNCT:
+            return 0x00B1;
+            break;
+        default:
+            return 0;
+    }
+}
+
+unsigned short parameter_size_at_slot(uint8_t &parameter_sizes, int slot){
+    assert((slot == 1) || (slot == 2));
+    return (
+        (parameter_sizes >> (4 * (slot - 1)))
+        & 0x000F
+    );
+}
+
 int match_opcode(const string &candidate){
     if (candidate == "push") return OPCODE::PUSH;
     else if (candidate == "pop") return OPCODE::POP;
@@ -43,7 +101,7 @@ inline int match_directive(const string &candidate){
 }
 
 inline void Parser::write(){
-    sink << "0x" << hex << instruction << ' ';
+    sink << "0x" << hex << instruction << '\n';
     instruction = 0;
 }
 
@@ -78,26 +136,8 @@ int Parser::deal_with_opcodes(){
     int opcode = match_opcode(current_token->value);
     if (opcode != -1) {
         instruction += (opcode << 12);
-        switch (opcode) {
-            // Single parameter instructions
-            case OPCODE::PUSH:
-            case OPCODE::ARITH:
-            case OPCODE::LOGIC:
-            case OPCODE::COMPARE:
-            case OPCODE::LOADR:
-            case OPCODE::STORER:
-                state.parameters_due = 1;
-                break;
-            // Double parameter instructions
-            case OPCODE::BSHIFT:
-            case OPCODE::LOADM:
-            case OPCODE::STOREM:
-            case OPCODE::JMP:
-            case OPCODE::IO:
-            case OPCODE::FUNCT:
-                state.parameters_due = 2;
-                break;
-        }
+        state.parameters_due = parameters_due_for_opcode(opcode);
+        state.parameter_sizes = get_parameter_sizes(opcode);
     } else return -1;
     return 0;
 }
@@ -138,6 +178,7 @@ int Parser::parse(){
                         instruction = *i;
                         write();
                     }
+                    delete words;
                 }
         }
     }
