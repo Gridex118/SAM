@@ -42,37 +42,23 @@ unsigned short parameters_due_for_opcode(int &opcode){
     }
 }
 
-unsigned short get_parameter_sizes(int opcode){
+inline unsigned short get_second_parameter_size(int opcode){
     switch (opcode) {
         case OPCODE::BSHIFT:
-            return 0x0084;
-            break;
-        case OPCODE::LOADM:
-            return 0x00B1;
-            break;            
-        case OPCODE::STOREM:
-            return 0x00B1;
-            break;
-        case OPCODE::JMP:
-            return 0x00B1;
-            break;
-        case OPCODE::IO:
-            return 0x0066;
+            return 8;
             break;
         case OPCODE::FUNCT:
-            return 0x00B1;
+        case OPCODE::LOADM:   
+        case OPCODE::STOREM:
+        case OPCODE::JMP:
+            return 11;
+            break;
+        case OPCODE::IO:
+            return 6;
             break;
         default:
             return 0;
     }
-}
-
-unsigned short parameter_size_at_slot(uint8_t &parameter_sizes, int slot){
-    assert((slot == 1) || (slot == 2));
-    return (
-        (parameter_sizes >> (4 * (slot - 1)))
-        & 0x000F
-    );
 }
 
 int match_opcode(const string &candidate){
@@ -137,7 +123,7 @@ int Parser::deal_with_opcodes(){
     if (opcode != -1) {
         instruction += (opcode << 12);
         state.parameters_due = parameters_due_for_opcode(opcode);
-        state.parameter_sizes = get_parameter_sizes(opcode);
+        state.second_parameter_size = get_second_parameter_size(opcode);
     } else return -1;
     return 0;
 }
