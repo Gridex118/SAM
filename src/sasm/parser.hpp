@@ -32,6 +32,7 @@ namespace parse {
             int deal_with_directives();
             int deal_with_opcodes();
             inline void write();
+            inline void write_str_as_bytes();
         public:
             Parser(
                 const char *sink_name, lex::Tokenizer *tokenizer

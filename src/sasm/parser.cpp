@@ -91,6 +91,15 @@ inline void Parser::write(){
     instruction = 0;
 }
 
+inline void Parser::write_str_as_bytes(){
+    vector<uint16_t> *words = string_to_words(current_token->value);
+    for (auto i = words->begin(); i < words->end(); ++i){
+        instruction = *i;
+        write();
+    }
+    delete words;
+}
+
 int Parser::deal_with_directives(){
     int directive_type = match_directive(current_token->value);
     current_token = tokenizer->next_token_to_parse();
@@ -136,10 +145,21 @@ int Parser::parse(){
                 if (deal_with_directives() == -1) return -1;
                 break;
             case lex::TOKENS::NUMBER:
-                // A switch? The parameter lengths for the instructions vary
-                if (state.mode == MODE::CODE) {
-                    current_token = tokenizer->next_token_to_parse();
+                if ((state.mode == MODE::CODE) && (state.parameters_due > 0)) {
+                    int number = stoi(current_token->value);
+                    assert(state.parameters_due <= 2);
+                    assert(
+                        !(state.parameters_due < 2)
+                        || (
+                            (state.parameters_due < 2)
+                            && (state.second_parameter_size == 0)
+                        )
+                    );
+                    instruction += (
+                        number << (MAX_PARAMETER_SIZE - state.second_parameter_size)
+                    );
                     --state.parameters_due;
+                    if (state.parameters_due == 0) write();
                     break;
                 } else ; // Fall through to case TOKENS::PLAIN, and report error
             case lex::TOKENS::PLAIN:
@@ -150,7 +170,12 @@ int Parser::parse(){
                     return -1;
                 }
                 if (deal_with_opcodes() == -1) {
-                    // Either a parameter or an error
+                    if (state.parameters_due == 0){
+                        cerr << "Invalid syntax(Line: ";
+                        cerr << current_token->line << ")\n";
+                        return -1;
+                    }
+                    --state.parameters_due;
                 }
                 break;
             case lex::TOKENS::STRING:
@@ -159,12 +184,7 @@ int Parser::parse(){
                     cerr << "Strings can not appear outside memory section\n";
                     return -1;
                 } else {
-                    vector<uint16_t> *words = string_to_words(current_token->value);
-                    for (auto i = words->begin(); i < words->end(); ++i){
-                        instruction = *i;
-                        write();
-                    }
-                    delete words;
+                    write_str_as_bytes();
                 }
         }
     }
