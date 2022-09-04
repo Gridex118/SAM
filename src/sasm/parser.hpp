@@ -31,6 +31,7 @@ namespace parse {
             ParserState state;
             int deal_with_directives();
             int deal_with_opcodes();
+            int deal_with_numbers();
             inline void write();
             inline void write_str_as_bytes();
         public:

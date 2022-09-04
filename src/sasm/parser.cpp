@@ -80,6 +80,10 @@ int match_opcode(const string &candidate){
     else return -1;
 }
 
+int match_parameter(const string &candidate){
+    return -1;
+}
+
 inline int match_directive(const string &candidate){
     if (candidate == "SECTION") return DIRECTIVE::SECTION;
     else if (candidate == "LABEL") return DIRECTIVE::LABEL;
@@ -137,6 +141,26 @@ int Parser::deal_with_opcodes(){
     return 0;
 }
 
+int Parser::deal_with_numbers(){
+    int number = stoi(current_token->value);
+    assert(
+        (state.parameters_due == 2)
+        || (
+            (state.parameters_due < 2)
+            && (state.second_parameter_size == 0)
+        )
+    );
+    instruction += (
+        number << (
+            state.parameters_due == 2 ?
+            (MAX_PARAMETER_SIZE - state.second_parameter_size) : 0
+        )
+    );
+    --state.parameters_due;
+    if (state.parameters_due == 0) write();
+    return 0;
+}
+
 int Parser::parse(){
     while ((current_token = tokenizer->next_token_to_parse()) != NULL){
         assert(current_token != NULL);
@@ -146,20 +170,7 @@ int Parser::parse(){
                 break;
             case lex::TOKENS::NUMBER:
                 if ((state.mode == MODE::CODE) && (state.parameters_due > 0)) {
-                    int number = stoi(current_token->value);
-                    assert(state.parameters_due <= 2);
-                    assert(
-                        !(state.parameters_due < 2)
-                        || (
-                            (state.parameters_due < 2)
-                            && (state.second_parameter_size == 0)
-                        )
-                    );
-                    instruction += (
-                        number << (MAX_PARAMETER_SIZE - state.second_parameter_size)
-                    );
-                    --state.parameters_due;
-                    if (state.parameters_due == 0) write();
+                    if (deal_with_numbers() == -1) return -1;
                     break;
                 } else ; // Fall through to case TOKENS::PLAIN, and report error
             case lex::TOKENS::PLAIN:
@@ -175,7 +186,9 @@ int Parser::parse(){
                         cerr << current_token->line << ")\n";
                         return -1;
                     }
+
                     --state.parameters_due;
+                    if (state.parameters_due == 0) write();
                 }
                 break;
             case lex::TOKENS::STRING:
