@@ -32,6 +32,7 @@ namespace parse {
             int deal_with_directives();
             int deal_with_opcodes();
             int deal_with_numbers();
+            int deal_with_parameters();
             inline void write();
             inline void write_str_as_bytes();
         public:

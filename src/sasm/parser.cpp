@@ -195,6 +195,31 @@ int Parser::deal_with_numbers(){
             (MAX_PARAMETER_SIZE - state.second_parameter_size) : 0
         )
     );
+    if (state.parameters_due == 2) {
+        state.second_parameter_size = 0;
+    }
+    --state.parameters_due;
+    if (state.parameters_due == 0) write();
+    return 0;
+}
+
+int Parser::deal_with_parameters(){
+    assert(
+        (state.parameters_due == 2)
+        || (
+            (state.parameters_due < 2)
+            && (state.second_parameter_size == 0)
+        )
+    );
+    instruction += (
+        match_parameter(current_token->value) << (
+            state.parameters_due == 2 ?
+            (MAX_PARAMETER_SIZE - state.second_parameter_size) : 0
+        )
+    );
+    if (state.parameters_due == 2) {
+        state.second_parameter_size = 0;
+    }
     --state.parameters_due;
     if (state.parameters_due == 0) write();
     return 0;
@@ -224,10 +249,9 @@ int Parser::parse(){
                         cerr << "Invalid syntax(Line: ";
                         cerr << current_token->line << ")\n";
                         return -1;
+                    } else {
+                        if (deal_with_parameters() == -1) return -1;
                     }
-
-                    --state.parameters_due;
-                    if (state.parameters_due == 0) write();
                 }
                 break;
             case lex::TOKENS::STRING:
