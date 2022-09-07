@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef struct{
-    char char_read;
+    int char_read;
     unsigned short read_digit, type, skip_instr;
     uint16_t instr;
     uint8_t instr_digit_index;

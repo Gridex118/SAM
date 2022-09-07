@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include "../vm/vm.h"
 #include <iostream>
+#include <iomanip>
 #include <assert.h>
 
 using namespace std;
@@ -130,7 +131,8 @@ inline int match_directive(const string &candidate){
 }
 
 inline void Parser::write(){
-    sink << "0x" << hex << instruction << '\n';
+    sink << "0x" << setfill('0') << setw(4)
+         << hex << instruction << '\n';
     instruction = 0;
 }
 
@@ -177,6 +179,7 @@ int Parser::deal_with_opcodes(){
         state.parameters_due = parameters_due_for_opcode(opcode);
         state.second_parameter_size = get_second_parameter_size(opcode);
     } else return -1;
+    if (opcode == OPCODE::HALT) write();
     return 0;
 }
 
@@ -227,7 +230,6 @@ int Parser::deal_with_parameters(){
 
 int Parser::parse(){
     while ((current_token = tokenizer->next_token_to_parse()) != NULL){
-        assert(current_token != NULL);
         switch (current_token->type) {
             case lex::TOKENS::DIRECTIVE:
                 if (deal_with_directives() == -1) return -1;
