@@ -158,15 +158,13 @@ int Parser::deal_with_directives(){
             instruction = MEM_SECTION_START;
             write();
         } else {
-            cerr << "Illegal section specifier at line ";
-            cerr << current_token->line << '\n';
+            report_section_error(current_token->line);
             return -1;
         }
     } else if (directive_type == DIRECTIVE::LABEL) {
         data[current_token->value] = current_token->line;
     } else {
-        cerr << "Illegal directive at line ";
-        cerr << current_token->line << '\n';
+        report_directive_error(current_token->line);
         return -1;
     }
     return 0;
@@ -178,13 +176,27 @@ int Parser::deal_with_opcodes(){
         instruction += (opcode << 12);
         state.parameters_due = parameters_due_for_opcode(opcode);
         state.second_parameter_size = get_second_parameter_size(opcode);
+        if (state.parameters_due == 0) write();
+        return 0;
     } else return -1;
-    if (opcode == OPCODE::HALT) write();
-    return 0;
 }
 
-int Parser::deal_with_numbers(){
-    int number = stoi(current_token->value);
+inline void Parser::add_para_to_instr(){
+    int base = (
+        current_token->type == lex::TOKENS::NUMBER ?
+        stoi(current_token->value) : match_parameter(current_token->value)
+    );
+    if (state.parameters_due == 2) {
+        instruction += (
+            base << (MAX_PARAMETER_SIZE - state.second_parameter_size)
+        );
+        state.second_parameter_size = 0;
+    } else {
+        instruction += match_parameter(current_token->value);
+    }
+}
+
+int Parser::deal_with_num_parameters(){
     assert(
         (state.parameters_due == 2)
         || (
@@ -192,21 +204,13 @@ int Parser::deal_with_numbers(){
             && (state.second_parameter_size == 0)
         )
     );
-    instruction += (
-        number << (
-            state.parameters_due == 2 ?
-            (MAX_PARAMETER_SIZE - state.second_parameter_size) : 0
-        )
-    );
-    if (state.parameters_due == 2) {
-        state.second_parameter_size = 0;
-    }
+    add_para_to_instr();
     --state.parameters_due;
     if (state.parameters_due == 0) write();
     return 0;
 }
 
-int Parser::deal_with_parameters(){
+int Parser::deal_with_plain_parameters(){
     assert(
         (state.parameters_due == 2)
         || (
@@ -214,15 +218,7 @@ int Parser::deal_with_parameters(){
             && (state.second_parameter_size == 0)
         )
     );
-    instruction += (
-        match_parameter(current_token->value) << (
-            state.parameters_due == 2 ?
-            (MAX_PARAMETER_SIZE - state.second_parameter_size) : 0
-        )
-    );
-    if (state.parameters_due == 2) {
-        state.second_parameter_size = 0;
-    }
+    add_para_to_instr();
     --state.parameters_due;
     if (state.parameters_due == 0) write();
     return 0;
@@ -236,30 +232,26 @@ int Parser::parse(){
                 break;
             case lex::TOKENS::NUMBER:
                 if ((state.mode == MODE::CODE) && (state.parameters_due > 0)) {
-                    if (deal_with_numbers() == -1) return -1;
+                    if (deal_with_num_parameters() == -1) return -1;
                     break;
                 } else ; // Fall through to case TOKENS::PLAIN, and report error
             case lex::TOKENS::PLAIN:
                 if (state.mode != MODE::CODE) {
-                    cerr << "Error at line " << current_token->line << '\n';
-                    cerr << "Machine instructions can not appear ";
-                    cerr << "outside code section\n";
+                    report_instr_outside_code_sec_error(current_token->line);
                     return -1;
                 }
                 if (deal_with_opcodes() == -1) {
                     if (state.parameters_due == 0){
-                        cerr << "Invalid syntax(Line: ";
-                        cerr << current_token->line << ")\n";
+                        report_syntax_error(current_token->line);
                         return -1;
                     } else {
-                        if (deal_with_parameters() == -1) return -1;
+                        if (deal_with_plain_parameters() == -1) return -1;
                     }
                 }
                 break;
             case lex::TOKENS::STRING:
                 if (state.mode != MODE::DATA) {
-                    cerr << "Error at line " << current_token->line << '\n';
-                    cerr << "Strings can not appear outside memory section\n";
+                    report_string_outside_data_sec_error(current_token->line);
                     return -1;
                 } else {
                     write_str_as_bytes();

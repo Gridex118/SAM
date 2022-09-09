@@ -9,6 +9,12 @@ namespace parse {
 
     enum MODE { CODE, DATA };
 
+    void report_string_outside_data_sec_error(int line);
+    void report_instr_outside_code_sec_error(int line);
+    void report_syntax_error(int line);
+    void report_directive_error(int line);
+    void report_section_error(int line);
+
     typedef struct parser_state {
         unsigned short current_opcode: 4;
         unsigned short parameters_due: 2;
@@ -31,8 +37,9 @@ namespace parse {
             ParserState state;
             int deal_with_directives();
             int deal_with_opcodes();
-            int deal_with_numbers();
-            int deal_with_parameters();
+            int deal_with_num_parameters();
+            int deal_with_plain_parameters();
+            inline void add_para_to_instr();
             inline void write();
             inline void write_str_as_bytes();
         public:
