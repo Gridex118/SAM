@@ -14,6 +14,7 @@ namespace parse {
     void report_syntax_error(int line);
     void report_directive_error(int line);
     void report_section_error(int line);
+    void report_parameter_error(int line);
 
     typedef struct parser_state {
         unsigned short current_opcode: 4;
@@ -39,7 +40,7 @@ namespace parse {
             int deal_with_opcodes();
             int deal_with_num_parameters();
             int deal_with_plain_parameters();
-            inline void add_para_to_instr();
+            inline int add_para_to_instr();
             inline void write();
             inline void write_str_as_bytes();
         public:

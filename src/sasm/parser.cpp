@@ -162,7 +162,7 @@ int Parser::deal_with_directives(){
             return -1;
         }
     } else if (directive_type == DIRECTIVE::LABEL) {
-        data[current_token->value] = current_token->line;
+        data[current_token->value] = current_token->line - 1;
     } else {
         report_directive_error(current_token->line);
         return -1;
@@ -181,19 +181,24 @@ int Parser::deal_with_opcodes(){
     } else return -1;
 }
 
-inline void Parser::add_para_to_instr(){
+inline int Parser::add_para_to_instr(){
     int base = (
         current_token->type == lex::TOKENS::NUMBER ?
         stoi(current_token->value) : match_parameter(current_token->value)
     );
+    if ((base == -1) && ((base = data[current_token->value]) == 0)) {
+        report_parameter_error(current_token->line);
+        return -1;
+    }
     if (state.parameters_due == 2) {
         instruction += (
             base << (MAX_PARAMETER_SIZE - state.second_parameter_size)
         );
         state.second_parameter_size = 0;
     } else {
-        instruction += match_parameter(current_token->value);
+        instruction += base;
     }
+    return 0;
 }
 
 int Parser::deal_with_num_parameters(){
@@ -204,7 +209,7 @@ int Parser::deal_with_num_parameters(){
             && (state.second_parameter_size == 0)
         )
     );
-    add_para_to_instr();
+    if (add_para_to_instr() ==  -1) return -1;
     --state.parameters_due;
     if (state.parameters_due == 0) write();
     return 0;
@@ -218,7 +223,7 @@ int Parser::deal_with_plain_parameters(){
             && (state.second_parameter_size == 0)
         )
     );
-    add_para_to_instr();
+    if (add_para_to_instr() == -1) return -1;
     --state.parameters_due;
     if (state.parameters_due == 0) write();
     return 0;

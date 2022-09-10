@@ -1,9 +1,15 @@
 .SECTION CODE
 push 12
-push 13
 .LABEL L1
+push 13
 arith add
+push L1
 io print integer
+io print_eseq newline
+io print integer
+io print_eseq newline
+push 0
+io print string
 io print_eseq newline
 halt
 

@@ -49,6 +49,7 @@ int Tokenizer::tokenize(){
             case '\n':
                 ++line;
             case '\r':
+            case '\t':
             case ' ':
                 next();
                 break;
