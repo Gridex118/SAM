@@ -1,0 +1,14 @@
+.SECTION CODE
+
+push			1
+storer			Ra
+loadr			Ra
+io			print			integer
+io			print_eseq		newline
+loadr			Ra
+push			1
+arith			add
+push			5
+compare			eql
+jmp			cond			3
+halt

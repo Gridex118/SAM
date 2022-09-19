@@ -186,14 +186,16 @@ inline int Parser::add_para_to_instr(){
         current_token->type == lex::TOKENS::NUMBER ?
         stoi(current_token->value) : match_parameter(current_token->value)
     );
-    if ((base == -1) && ((base = data[current_token->value]) == 0)) {
-        report_parameter_error(current_token->line);
-        return -1;
+    if (base == -1) {
+        if (data.find(current_token->value) == data.end()) {
+            report_parameter_error(current_token->line);
+            return -1;
+        } else {
+            base = data[current_token->value];
+        }
     }
     if (state.parameters_due == 2) {
-        instruction += (
-            base << (MAX_PARAMETER_SIZE - state.second_parameter_size)
-        );
+        instruction += state.second_parameter_size;
         state.second_parameter_size = 0;
     } else {
         instruction += base;

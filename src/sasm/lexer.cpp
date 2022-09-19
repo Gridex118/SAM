@@ -7,7 +7,7 @@ using namespace lex;
 
 inline bool is_terminal(const char character){
     return (character == ' ') || (character == '\n')
-            || (character == '\r');
+            || (character == '\r') || (character == '\t');
 }
 
 inline void Tokenizer::next(){
