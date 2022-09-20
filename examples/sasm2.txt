@@ -8,7 +8,9 @@ io			print_eseq		newline
 loadr			Ra
 push			1
 arith			add
+storer			Ra
+loadr			Ra
 push			5
-compare			eql
-jmp			cond			3
+compare			neql
+jmp			cond			1
 halt

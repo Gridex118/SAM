@@ -195,7 +195,7 @@ inline int Parser::add_para_to_instr(){
         }
     }
     if (state.parameters_due == 2) {
-        instruction += state.second_parameter_size;
+        instruction += (base << state.second_parameter_size);
         state.second_parameter_size = 0;
     } else {
         instruction += base;
