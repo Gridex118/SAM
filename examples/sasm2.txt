@@ -2,6 +2,9 @@
 
 push			1
 storer			Ra
+
+.LABEL	L1
+
 loadr			Ra
 io			print			integer
 io			print_eseq		newline
@@ -12,5 +15,6 @@ storer			Ra
 loadr			Ra
 push			5
 compare			neql
-jmp			cond			1
+jmp			cond			L1
+
 halt

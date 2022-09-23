@@ -162,7 +162,9 @@ int Parser::deal_with_directives(){
             return -1;
         }
     } else if (directive_type == DIRECTIVE::LABEL) {
-        data[current_token->value] = current_token->line - 1;
+        data[current_token->value] = (state.instruction_count - 1);
+        /* A 1 must be subtracted since the instruction indexing oughts to start at 0;
+           the first instruction would otherwise be indexed at 1 */
     } else {
         report_directive_error(current_token->line);
         return -1;
@@ -173,6 +175,7 @@ int Parser::deal_with_directives(){
 int Parser::deal_with_opcodes(){
     int opcode = match_opcode(current_token->value);
     if (opcode != -1) {
+        state.instruction_count += 1;
         instruction += (opcode << 12);
         state.parameters_due = parameters_due_for_opcode(opcode);
         state.second_parameter_size = get_second_parameter_size(opcode);

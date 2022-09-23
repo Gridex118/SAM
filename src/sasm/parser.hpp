@@ -17,6 +17,7 @@ namespace parse {
     void report_parameter_error(int line);
 
     typedef struct parser_state {
+        int instruction_count = 0;
         unsigned short current_opcode: 4;
         unsigned short parameters_due: 2;
         unsigned short second_parameter_size: 4;
