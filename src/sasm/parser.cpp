@@ -7,6 +7,14 @@
 using namespace std;
 using namespace parse;
 
+unordered_map<string, OPCODE> OPCODE_MAP = {
+    {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
+    {"arith", OPCODE::ARITH}, {"bshift", OPCODE::BSHIFT}, {"logic", OPCODE::LOGIC},
+    {"compare", OPCODE::COMPARE}, {"loadr", OPCODE::LOADR}, {"loadm", OPCODE::LOADM},
+    {"storer", OPCODE::STORER}, {"storem", OPCODE::STOREM}, {"jmp", OPCODE::JMP},
+    {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
+};
+
 vector<uint16_t>* string_to_words(string str){
     vector<uint16_t> *words = new vector<uint16_t>;
     for (unsigned int i = 0; i < str.length(); i += 2) {
@@ -60,25 +68,6 @@ inline unsigned short get_second_parameter_size(int opcode){
         default:
             return 0;
     }
-}
-
-int match_opcode(const string &candidate){
-    if (candidate == "push") return OPCODE::PUSH;
-    else if (candidate == "pop") return OPCODE::POP;
-    else if (candidate == "dup") return OPCODE::DUP;
-    else if (candidate == "arith") return OPCODE::ARITH;
-    else if (candidate == "bshift") return OPCODE::BSHIFT;
-    else if (candidate == "logic") return OPCODE::LOGIC;
-    else if (candidate == "compare") return OPCODE::COMPARE;
-    else if (candidate == "loadr") return OPCODE::LOADR;
-    else if (candidate == "loadm") return OPCODE::LOADM;
-    else if (candidate == "storer") return OPCODE::STORER;
-    else if (candidate == "storem") return OPCODE::STOREM;
-    else if (candidate == "jmp") return OPCODE::JMP;
-    else if (candidate == "io") return OPCODE::IO;
-    else if (candidate == "funct") return OPCODE::FUNCT;
-    else if (candidate == "halt") return OPCODE::HALT;
-    else return -1;
 }
 
 int match_parameter(const string &candidate){
@@ -163,8 +152,7 @@ int Parser::deal_with_directives(){
         }
     } else if (directive_type == DIRECTIVE::LABEL) {
         data[current_token->value] = (state.instruction_count - 1);
-        /* A 1 must be subtracted since the instruction indexing oughts to start at 0;
-           the first instruction would otherwise be indexed at 1 */
+        // A 1 must be subtracted since the instruction indexing oughts to start at 0
     } else {
         report_directive_error(current_token->line);
         return -1;
@@ -173,8 +161,9 @@ int Parser::deal_with_directives(){
 }
 
 int Parser::deal_with_opcodes(){
-    int opcode = match_opcode(current_token->value);
-    if (opcode != -1) {
+    string value = current_token->value;
+    if (OPCODE_MAP.find(value) != OPCODE_MAP.end()) {
+        int opcode = OPCODE_MAP[value];
         state.instruction_count += 1;
         instruction += (opcode << 12);
         state.parameters_due = parameters_due_for_opcode(opcode);
