@@ -174,17 +174,21 @@ int Parser::deal_with_opcodes(){
 }
 
 inline int Parser::add_para_to_instr(){
-    int base = (
-        current_token->type == lex::TOKENS::NUMBER ?
-        stoi(current_token->value) : match_parameter(current_token->value)
-    );
-    if (base == -1) {
-        if (data.find(current_token->value) == data.end()) {
-            report_parameter_error(current_token->line);
-            return -1;
-        } else {
-            base = data[current_token->value];
-        }
+    int base;
+    switch (current_token->type) {
+        case lex::TOKENS::NUMBER:
+            base = stoi(current_token->value);
+            break;
+        default:
+            if ((base = match_parameter(current_token->value)) == -1) {
+                if (data.find(current_token->value) == data.end()) {
+                    report_parameter_error(current_token->line);
+                    return -1;
+                } else {
+                    base = data[current_token->value];
+                }
+            }
+            break;
     }
     if (state.parameters_due == 2) {
         instruction += (base << state.second_parameter_size);
