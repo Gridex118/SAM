@@ -1,7 +1,6 @@
 #include "lexer.hpp"
 #include <iostream>
 
-using namespace std;
 using namespace lex;
 
 inline bool is_alpha(const char character){
@@ -41,7 +40,7 @@ void TokenContainer::set_type(char character){
 inline int TokenContainer::reset_token(){
     current_token = new Token;
     if (current_token == NULL) {
-        cerr << "Ran out of memory\n";
+        std::cerr << "Ran out of memory\n";
         return -1;
     }
     else return 0;

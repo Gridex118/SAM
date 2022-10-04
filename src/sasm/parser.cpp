@@ -4,10 +4,9 @@
 #include <iomanip>
 #include <assert.h>
 
-using namespace std;
 using namespace parse;
 
-unordered_map<string, OPCODE> OPCODE_MAP = {
+std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
     {"arith", OPCODE::ARITH}, {"bshift", OPCODE::BSHIFT}, {"logic", OPCODE::LOGIC},
     {"compare", OPCODE::COMPARE}, {"loadr", OPCODE::LOADR}, {"loadm", OPCODE::LOADM},
@@ -15,8 +14,8 @@ unordered_map<string, OPCODE> OPCODE_MAP = {
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
 
-vector<uint16_t>* string_to_words(string str){
-    vector<uint16_t> *words = new vector<uint16_t>;
+std::vector<uint16_t>* string_to_words(std::string str){
+    std::vector<uint16_t> *words = new std::vector<uint16_t>;
     for (unsigned int i = 0; i < str.length(); i += 2) {
         words->push_back(
             (static_cast<uint8_t>(str[i]) << 8)
@@ -70,7 +69,7 @@ inline unsigned short get_second_parameter_size(int opcode){
     }
 }
 
-int match_parameter(const string &candidate){
+int match_parameter(const std::string &candidate){
     if (candidate == "high") return BYTE_ORDERS::HIGH;
     else if (candidate == "low") return BYTE_ORDERS::LOW;
     else if (candidate == "add") return ARITHMETIC_OPERATIONS::ADD;
@@ -113,20 +112,20 @@ int match_parameter(const string &candidate){
     else return -1;
 }
 
-inline int match_directive(const string &candidate){
+inline int match_directive(const std::string &candidate){
     if (candidate == "SECTION") return DIRECTIVE::SECTION;
     else if (candidate == "LABEL") return DIRECTIVE::LABEL;
     else return -1;
 }
 
 inline void Parser::write(){
-    sink << "0x" << setfill('0') << setw(4)
-         << hex << instruction << '\n';
+    sink << "0x" << std::setfill('0') << std::setw(4)
+         << std::hex << instruction << '\n';
     instruction = 0;
 }
 
 inline void Parser::write_str_as_bytes(){
-    vector<uint16_t> *words = string_to_words(current_token->value);
+    std::vector<uint16_t> *words = string_to_words(current_token->value);
     for (auto i = words->begin(); i < words->end(); ++i){
         instruction = *i;
         write();
@@ -161,7 +160,7 @@ int Parser::deal_with_directives(){
 }
 
 int Parser::deal_with_opcodes(){
-    string value = current_token->value;
+    std::string value = current_token->value;
     if (OPCODE_MAP.find(value) != OPCODE_MAP.end()) {
         int opcode = OPCODE_MAP[value];
         state.instruction_count += 1;
