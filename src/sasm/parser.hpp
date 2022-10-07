@@ -41,6 +41,7 @@ namespace parse {
             int deal_with_opcodes();
             int deal_with_num_parameters();
             int deal_with_plain_parameters();
+            int deal_with_imports();
             inline int add_para_to_instr();
             inline void write();
             inline void write_str_as_bytes();

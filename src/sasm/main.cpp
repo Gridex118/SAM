@@ -13,7 +13,7 @@ int main(int argc, char **argv){
             return -1;
         };
         parse::Parser parser(
-            (argc == 3) ? argv[2] : "a.txt",
+            (argc == 3) ? argv[2] : "a.sam",
             &tokenizer
         );
         if (parser.parse() == -1) {

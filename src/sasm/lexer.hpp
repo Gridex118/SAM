@@ -44,6 +44,7 @@ namespace lex{
         public:
             int line = 1;
             Tokenizer(const char *source_name);
+            Tokenizer(const std::string source_name);
             int tokenize();
             Token* next_token_to_parse();
     };

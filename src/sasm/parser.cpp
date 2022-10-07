@@ -115,6 +115,7 @@ int match_parameter(const std::string &candidate){
 inline int match_directive(const std::string &candidate){
     if (candidate == "SECTION") return DIRECTIVE::SECTION;
     else if (candidate == "LABEL") return DIRECTIVE::LABEL;
+    else if (candidate == "INCLUDE") return DIRECTIVE::INCLUDE;
     else return -1;
 }
 
@@ -152,6 +153,8 @@ int Parser::deal_with_directives(){
     } else if (directive_type == DIRECTIVE::LABEL) {
         data[current_token->value] = (state.instruction_count - 1);
         // A 1 must be subtracted since the instruction indexing oughts to start at 0
+    } else if (directive_type == DIRECTIVE::INCLUDE) {
+        deal_with_imports();
     } else {
         report_directive_error(current_token->line);
         return -1;
@@ -223,6 +226,17 @@ int Parser::deal_with_plain_parameters(){
     if (add_para_to_instr() == -1) return -1;
     --state.parameters_due;
     if (state.parameters_due == 0) write();
+    return 0;
+}
+
+int Parser::deal_with_imports(){
+    lex::Tokenizer *old_tokenizer = tokenizer;
+    lex::Tokenizer *new_tokenizer = new lex::Tokenizer(current_token->value);
+    tokenizer = new_tokenizer;
+    tokenizer->tokenize();
+    if (parse() == -1) return -1;
+    tokenizer = old_tokenizer;
+    delete new_tokenizer;
     return 0;
 }
 

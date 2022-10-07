@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 using namespace lex;
@@ -16,6 +17,13 @@ inline void Tokenizer::next(){
 
 Tokenizer::Tokenizer(const char *source_name){
     source.open(source_name);
+    next();
+}
+
+Tokenizer::Tokenizer(const std::string source_name){
+    char *char_array = new char[source_name.length() + 1];
+    std::strcpy(char_array, source_name.c_str());
+    source.open(char_array);
     next();
 }
 
