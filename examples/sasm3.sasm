@@ -1,2 +1,2 @@
-.INCLUDE	examples/sasm1.sasm
+.INCLUDE	examples/sasm1_for_3.sasm
 .INCLUDE	examples/sasm2.sasm

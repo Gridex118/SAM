@@ -3,7 +3,6 @@
 push		0
 io 		print		string
 io		print_eseq	newline
-halt
 
 .SECTION MEM
 

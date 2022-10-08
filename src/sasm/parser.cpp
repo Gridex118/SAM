@@ -20,7 +20,7 @@ std::vector<uint16_t>* string_to_words(std::string str){
         words->push_back(
             (static_cast<uint8_t>(str[i]) << 8)
             + static_cast<uint8_t>(str[i+1])
-        );    // Consuming two charcters at a time
+        );    // Consume two charcters at a time
     }
     return words;
 }
