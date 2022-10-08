@@ -7,6 +7,7 @@ uint16_t stack[MAX_STACK_LENGTH];
 uint16_t data_store[MEM_CELL_COUNT/2];
 uint16_t code_store[MEM_CELL_COUNT/2];
 uint16_t reg_data[R_COUNT];
+uint16_t STACK_BASE = 0;
 
 #define IP reg_data[Rip]
 #define SP reg_data[Rsp]
@@ -25,7 +26,7 @@ static inline void push(uint16_t data){
 }
 
 static inline uint16_t pop(){
-    if (SP > 0){
+    if (SP > STACK_BASE){
         return stack[--SP];
     } else {
         reg_data[Rerr] = STACK_UNDERFLOW;
@@ -140,6 +141,9 @@ void handle_arithmetic(uint16_t instruction){
             } else {
                 reg_data[Rerr] = ZERO_DIV_ERROR;
             }
+            break;
+        case INCR:
+            push(pop() + 1);
             break;
         default:
             reg_data[Rerr] = ILLEGAL_PARAMETER;
@@ -290,6 +294,7 @@ void handle_function(uint16_t instruction){
             push(IP);
             push(reg_data[Rbindx]);
             reg_data[Rc] =  SP;
+            STACK_BASE = 4;    // This should keep a user from poping any of the first three stack elements
             handle_jump(jmp_indx);
         }
             break;
@@ -299,6 +304,7 @@ void handle_function(uint16_t instruction){
             }
             reg_data[Rbindx] = pop();
             IP = pop();
+            STACK_BASE = 0;
             break;
     }
 }

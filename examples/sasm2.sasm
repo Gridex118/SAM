@@ -9,8 +9,7 @@ loadr			Ra
 io			print			integer
 io			print_eseq		newline
 loadr			Ra
-push			1
-arith			add
+arith			incr
 storer			Ra
 loadr			Ra
 push			5

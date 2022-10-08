@@ -76,6 +76,7 @@ int match_parameter(const std::string &candidate){
     else if (candidate == "sub") return ARITHMETIC_OPERATIONS::SUB;
     else if (candidate == "mult") return ARITHMETIC_OPERATIONS::MULT;
     else if (candidate == "div") return ARITHMETIC_OPERATIONS::DIV;
+    else if (candidate == "incr") return ARITHMETIC_OPERATIONS::INCR;
     else if (candidate == "and") return LOGICAL_OPERATIONS::AND;
     else if (candidate == "or") return LOGICAL_OPERATIONS::OR;
     else if (candidate == "not") return LOGICAL_OPERATIONS::NOT;
