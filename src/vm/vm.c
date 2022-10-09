@@ -294,7 +294,10 @@ void handle_function(uint16_t instruction){
             push(IP);
             push(reg_data[Rbindx]);
             reg_data[Rc] =  SP;
-            STACK_BASE = 4;    // This should keep a user from poping any of the first three stack elements
+            STACK_BASE += 4;
+            /* This should keep a user from poping any of the first three stack elements.
+            Using additions, since doing that should allow functions to be calles from
+            inside another. */
             handle_jump(jmp_indx);
         }
             break;
@@ -302,9 +305,9 @@ void handle_function(uint16_t instruction){
             while (SP > reg_data[Rc]){
                 pop();
             }
+            STACK_BASE -= 4;
             reg_data[Rbindx] = pop();
             IP = pop();
-            STACK_BASE = 0;
             break;
     }
 }
