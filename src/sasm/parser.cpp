@@ -137,7 +137,7 @@ inline void Parser::write_str_as_bytes(){
 
 int Parser::deal_with_directives(){
     int directive_type = match_directive(current_token->value);
-    current_token = tokenizer->next_token_to_parse();
+    current_token = primary_tokenizer->next_token_to_parse();
     if (directive_type == DIRECTIVE::SECTION) {
         if (current_token->value == "CODE") {
             state.mode = MODE::CODE;
@@ -154,8 +154,6 @@ int Parser::deal_with_directives(){
     } else if (directive_type == DIRECTIVE::LABEL) {
         data[current_token->value] = (state.instruction_count - 1);
         // A 1 must be subtracted since the instruction indexing oughts to start at 0
-    } else if (directive_type == DIRECTIVE::INCLUDE) {
-        deal_with_imports();
     } else {
         report_directive_error(current_token->line);
         return -1;
@@ -231,18 +229,51 @@ int Parser::deal_with_plain_parameters(){
 }
 
 int Parser::deal_with_imports(){
-    lex::Tokenizer *old_tokenizer = tokenizer;
-    lex::Tokenizer *new_tokenizer = new lex::Tokenizer(current_token->value);
-    tokenizer = new_tokenizer;
-    tokenizer->tokenize();
-    if (parse() == -1) return -1;
-    tokenizer = old_tokenizer;
-    delete new_tokenizer;
+    secondary_tokenizer = primary_tokenizer;
+    primary_tokenizer = new lex::Tokenizer(current_token->value);
+    if (primary_tokenizer->tokenize() == -1) return -1;
+    populate_tokens_final();
+    delete primary_tokenizer;
+    primary_tokenizer = secondary_tokenizer;
+    return 0;
+}
+
+int Parser::populate_tokens_final(){
+    current_token = primary_tokenizer->next_token_to_parse();
+    while(current_token != NULL) {
+        if (current_token->type == lex::TOKENS::DIRECTIVE) {
+            if (match_directive(current_token->value) == DIRECTIVE::SECTION) {
+                tokens_final.push_back(current_token);
+                current_token = primary_tokenizer->next_token_to_parse();
+            }
+            if (match_directive(current_token->value) == DIRECTIVE::LABEL) {
+                tokens_final.push_back(current_token);
+                current_token = primary_tokenizer->next_token_to_parse();
+                data[current_token->value] = 0;
+                /* Declare a label; this should allow for the passing of labels for which
+                 the directives appear after the current instruction */
+                tokens_final.push_back(current_token);
+                current_token = primary_tokenizer->next_token_to_parse();
+            } else if (match_directive(current_token->value) == DIRECTIVE::INCLUDE) {
+                // The include directive shall not be included in tokens_final
+                current_token = primary_tokenizer->next_token_to_parse();
+                if (deal_with_imports() == -1) return -1;
+                current_token = primary_tokenizer->next_token_to_parse();
+            }
+        } else {
+            tokens_final.push_back(current_token);
+            current_token = primary_tokenizer->next_token_to_parse();
+        }
+    }
+    delete primary_tokenizer;
     return 0;
 }
 
 int Parser::parse(){
-    while ((current_token = tokenizer->next_token_to_parse()) != NULL){
+    primary_tokenizer->tokenize();
+    populate_tokens_final();
+    for (int i = 0; i < tokens_final.size(); ++i){
+        current_token = tokens_final[i];
         switch (current_token->type) {
             case lex::TOKENS::DIRECTIVE:
                 if (deal_with_directives() == -1) return -1;

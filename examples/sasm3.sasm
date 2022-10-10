@@ -1,2 +1,6 @@
 .INCLUDE	examples/sasm1_for_3.sasm
-.INCLUDE	examples/sasm2.sasm
+.INCLUDE	examples/sasm2_for_3.sasm
+
+.SECTION	CODE
+
+halt

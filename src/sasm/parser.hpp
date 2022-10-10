@@ -32,11 +32,14 @@ namespace parse {
     class Parser{
         private:
             std::ofstream sink;
-            lex::Tokenizer *tokenizer;
+            lex::Tokenizer *primary_tokenizer;
+            lex::Tokenizer *secondary_tokenizer;
+            std::vector<lex::Token*> tokens_final;
             lex::Token *current_token;
             uint16_t instruction = 0;
             std::unordered_map<std::string, int> data;
             ParserState state;
+            int populate_tokens_final();
             int deal_with_directives();
             int deal_with_opcodes();
             int deal_with_num_parameters();
@@ -46,9 +49,10 @@ namespace parse {
             inline void write();
             inline void write_str_as_bytes();
         public:
-            Parser(
-                const char *sink_name, lex::Tokenizer *tokenizer
-            ): tokenizer(tokenizer) { sink.open(sink_name); }
+            Parser(const char *sink_name, const char *source_name){
+                sink.open(sink_name);
+                primary_tokenizer = new lex::Tokenizer(source_name);
+            }
             int parse();
     };
 
