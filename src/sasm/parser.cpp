@@ -28,21 +28,15 @@ std::vector<uint16_t>* string_to_words(std::string str){
 unsigned short parameters_due_for_opcode(int &opcode){
     switch (opcode) {
         // Single parameter instructions
-        case OPCODE::PUSH:
-        case OPCODE::ARITH:
-        case OPCODE::LOGIC:
-        case OPCODE::COMPARE:
-        case OPCODE::LOADR:
-        case OPCODE::STORER:
+        case OPCODE::PUSH:    case OPCODE::ARITH:
+        case OPCODE::LOGIC:   case OPCODE::COMPARE:
+        case OPCODE::LOADR:   case OPCODE::STORER:
             return 1;
             break;
         // Double parameter instructions
-        case OPCODE::BSHIFT:
-        case OPCODE::LOADM:
-        case OPCODE::STOREM:
-        case OPCODE::JMP:
-        case OPCODE::IO:
-        case OPCODE::FUNCT:
+        case OPCODE::BSHIFT:  case OPCODE::LOADM:
+        case OPCODE::STOREM:  case OPCODE::JMP:
+        case OPCODE::IO:      case OPCODE::FUNCT:
             return 2;
             break;
         default:
@@ -55,10 +49,8 @@ inline unsigned short get_second_parameter_size(int opcode){
         case OPCODE::BSHIFT:
             return 8;
             break;
-        case OPCODE::FUNCT:
-        case OPCODE::LOADM:   
-        case OPCODE::STOREM:
-        case OPCODE::JMP:
+        case OPCODE::FUNCT:    case OPCODE::LOADM:   
+        case OPCODE::STOREM:   case OPCODE::JMP:
             return 11;
             break;
         case OPCODE::IO:
@@ -118,193 +110,4 @@ inline int match_directive(const std::string &candidate){
     else if (candidate == "LABEL") return DIRECTIVE::LABEL;
     else if (candidate == "INCLUDE") return DIRECTIVE::INCLUDE;
     else return -1;
-}
-
-inline void Parser::write(){
-    sink << "0x" << std::setfill('0') << std::setw(4)
-         << std::hex << instruction << '\n';
-    instruction = 0;
-}
-
-inline void Parser::write_str_as_bytes(){
-    std::vector<uint16_t> *words = string_to_words(current_token->value);
-    for (auto i = words->begin(); i < words->end(); ++i){
-        instruction = *i;
-        write();
-    }
-    delete words;
-}
-
-int Parser::deal_with_directives(){
-    int directive_type = match_directive(current_token->value);
-    current_token = primary_tokenizer->next_token_to_parse();
-    if (directive_type == DIRECTIVE::SECTION) {
-        if (current_token->value == "CODE") {
-            state.mode = MODE::CODE;
-            instruction = CODE_SECTION_START;
-            write();
-        } else if (current_token->value == "MEM") {
-            state.mode = MODE::DATA;
-            instruction = MEM_SECTION_START;
-            write();
-        } else {
-            report_section_error(current_token->line);
-            return -1;
-        }
-    } else if (directive_type == DIRECTIVE::LABEL) {
-        data[current_token->value] = (state.instruction_count - 1);
-        // A 1 must be subtracted since the instruction indexing oughts to start at 0
-    } else {
-        report_directive_error(current_token->line);
-        return -1;
-    }
-    return 0;
-}
-
-int Parser::deal_with_opcodes(){
-    std::string value = current_token->value;
-    if (OPCODE_MAP.find(value) != OPCODE_MAP.end()) {
-        int opcode = OPCODE_MAP[value];
-        state.instruction_count += 1;
-        instruction += (opcode << 12);
-        state.parameters_due = parameters_due_for_opcode(opcode);
-        state.second_parameter_size = get_second_parameter_size(opcode);
-        if (state.parameters_due == 0) write();
-        return 0;
-    } else return -1;
-}
-
-inline int Parser::add_para_to_instr(){
-    int base;
-    switch (current_token->type) {
-        case lex::TOKENS::NUMBER:
-            base = stoi(current_token->value);
-            break;
-        default:
-            if ((base = match_parameter(current_token->value)) == -1) {
-                if (data.find(current_token->value) == data.end()) {
-                    report_parameter_error(current_token->line);
-                    return -1;
-                } else {
-                    base = data[current_token->value];
-                }
-            }
-            break;
-    }
-    if (state.parameters_due == 2) {
-        instruction += (base << state.second_parameter_size);
-        state.second_parameter_size = 0;
-    } else {
-        instruction += base;
-    }
-    return 0;
-}
-
-int Parser::deal_with_num_parameters(){
-    assert(
-        (state.parameters_due == 2)
-        || (
-            (state.parameters_due < 2)
-            && (state.second_parameter_size == 0)
-        )
-    );
-    if (add_para_to_instr() ==  -1) return -1;
-    --state.parameters_due;
-    if (state.parameters_due == 0) write();
-    return 0;
-}
-
-int Parser::deal_with_plain_parameters(){
-    assert(
-        (state.parameters_due == 2)
-        || (
-            (state.parameters_due < 2)
-            && (state.second_parameter_size == 0)
-        )
-    );
-    if (add_para_to_instr() == -1) return -1;
-    --state.parameters_due;
-    if (state.parameters_due == 0) write();
-    return 0;
-}
-
-int Parser::deal_with_imports(){
-    secondary_tokenizer = primary_tokenizer;
-    primary_tokenizer = new lex::Tokenizer(current_token->value);
-    if (primary_tokenizer->tokenize() == -1) return -1;
-    populate_tokens_final();
-    delete primary_tokenizer;
-    primary_tokenizer = secondary_tokenizer;
-    return 0;
-}
-
-int Parser::populate_tokens_final(){
-    current_token = primary_tokenizer->next_token_to_parse();
-    while(current_token != NULL) {
-        if (current_token->type == lex::TOKENS::DIRECTIVE) {
-            if (match_directive(current_token->value) == DIRECTIVE::SECTION) {
-                tokens_final.push_back(current_token);
-                current_token = primary_tokenizer->next_token_to_parse();
-            }
-            if (match_directive(current_token->value) == DIRECTIVE::LABEL) {
-                tokens_final.push_back(current_token);
-                current_token = primary_tokenizer->next_token_to_parse();
-                data[current_token->value] = 0;
-                /* Declare a label; this should allow for the passing of labels for which
-                 the directives appear after the current instruction */
-                tokens_final.push_back(current_token);
-                current_token = primary_tokenizer->next_token_to_parse();
-            } else if (match_directive(current_token->value) == DIRECTIVE::INCLUDE) {
-                // The include directive shall not be included in tokens_final
-                current_token = primary_tokenizer->next_token_to_parse();
-                if (deal_with_imports() == -1) return -1;
-                current_token = primary_tokenizer->next_token_to_parse();
-            }
-        } else {
-            tokens_final.push_back(current_token);
-            current_token = primary_tokenizer->next_token_to_parse();
-        }
-    }
-    delete primary_tokenizer;
-    return 0;
-}
-
-int Parser::parse(){
-    primary_tokenizer->tokenize();
-    populate_tokens_final();
-    for (int i = 0; i < tokens_final.size(); ++i){
-        current_token = tokens_final[i];
-        switch (current_token->type) {
-            case lex::TOKENS::DIRECTIVE:
-                if (deal_with_directives() == -1) return -1;
-                break;
-            case lex::TOKENS::NUMBER:
-                if ((state.mode == MODE::CODE) && (state.parameters_due > 0)) {
-                    if (deal_with_num_parameters() == -1) return -1;
-                    break;
-                } else ; // Fall through to case TOKENS::PLAIN, and report error
-            case lex::TOKENS::PLAIN:
-                if (state.mode != MODE::CODE) {
-                    report_instr_outside_code_sec_error(current_token->line);
-                    return -1;
-                }
-                if (deal_with_opcodes() == -1) {
-                    if (state.parameters_due == 0){
-                        report_syntax_error(current_token->line);
-                        return -1;
-                    } else {
-                        if (deal_with_plain_parameters() == -1) return -1;
-                    }
-                }
-                break;
-            case lex::TOKENS::STRING:
-                if (state.mode != MODE::DATA) {
-                    report_string_outside_data_sec_error(current_token->line);
-                    return -1;
-                } else {
-                    write_str_as_bytes();
-                }
-        }
-    }
-    return 0;
 }
