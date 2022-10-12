@@ -14,7 +14,7 @@ std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
 
-std::vector<uint16_t>* string_to_words(std::string str){
+std::vector<uint16_t>* string_to_words(std::string str) {
     std::vector<uint16_t> *words = new std::vector<uint16_t>;
     for (unsigned int i = 0; i < str.length(); i += 2) {
         words->push_back(
@@ -25,7 +25,7 @@ std::vector<uint16_t>* string_to_words(std::string str){
     return words;
 }
 
-unsigned short parameters_due_for_opcode(int &opcode){
+unsigned short parameters_due_for_opcode(int &opcode) {
     switch (opcode) {
         // Single parameter instructions
         case OPCODE::PUSH:    case OPCODE::ARITH:
@@ -44,7 +44,7 @@ unsigned short parameters_due_for_opcode(int &opcode){
     }
 }
 
-inline unsigned short get_second_parameter_size(int opcode){
+inline unsigned short get_second_parameter_size(int opcode) {
     switch (opcode) {
         case OPCODE::BSHIFT:
             return 8;
@@ -105,7 +105,7 @@ int match_parameter(const std::string &candidate){
     else return -1;
 }
 
-inline int match_directive(const std::string &candidate){
+inline int match_directive(const std::string &candidate) {
     if (candidate == "SECTION") return DIRECTIVE::SECTION;
     else if (candidate == "LABEL") return DIRECTIVE::LABEL;
     else if (candidate == "INCLUDE") return DIRECTIVE::INCLUDE;
