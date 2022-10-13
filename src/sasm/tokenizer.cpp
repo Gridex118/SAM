@@ -3,40 +3,67 @@
 
 using namespace parse;
 
-inline void Tokenizer::next() {
-    source >> std::noskipws >> current_char;
-}
-
-inline bool str_is_alpha(std::string &candidate) {
+inline bool str_is_alnum(const std::string &candidate) {
     auto i = candidate.begin();
-    for (i; (i != candidate.end()) && (std::isalpha(*i)); ++i);
+    for (i; (i != candidate.end()) && (std::isalnum(*i)); ++i);
     return (i == candidate.end());
 }
 
-inline bool str_is_num(std::string &candidate) {
+inline bool str_is_num(const std::string &candidate) {
     auto i = candidate.begin();
     for (i; (i != candidate.end()) && (std::isdigit(*i)); ++i);
     return (i == candidate.end());
 }
 
-TokenContainer* Tokenizer::tokenize() {
+inline bool is_terminal(const char &candidate) {
+    return (
+        (candidate == '\n') || (candidate == ' ')
+        || (candidate == '\t')
+    );
+}
+
+template<class S>
+inline void Tokenizer<S>::next() {
+    source >> std::noskipws >> current_char;
+}
+
+template<class S>
+inline void Tokenizer<S>::consume() {
+    current_token->value += current_char;
+    next();
+}
+
+template<class S>
+inline void Tokenizer<S>::push_token(TokenContainer *&container) {
+    container->push_back(current_token);
+    current_token = new Token;
+}
+
+template<class S>
+TokenContainer* Tokenizer<S>::tokenize() {
     next();
     TokenContainer *tokens = new TokenContainer;
-    Token *token = new Token;
+    current_token = new Token;
     while (source) {
         switch (current_char) {
             case ';':
+                // Marks a comment; skip the remaining line
                 while (current_char != '\n') next();
                 break;
             case '"':
-                token->type = TOKEN::STRING_T;
-                token->line = line;
+                current_token->line = line;
+                current_token->type = TOKEN::STRING_T;
                 next();
-                while (current_char != '"') {
-                    token->value += current_char;
-                    next();
-                }
+                while (current_char != '"') consume();
+                push_token(tokens);
                 next();
+                break;
+            case '.':
+                current_token->line = line;
+                current_token->type = TOKEN::DIRECTIVE_T;
+                next();
+                while (!is_terminal(current_char)) consume();
+                push_token(tokens);
                 break;
             case '\n':
                 ++line;
@@ -44,6 +71,17 @@ TokenContainer* Tokenizer::tokenize() {
                 next();
                 break;
             default:
+                current_token->line = line;
+                while (!is_terminal(current_char)) consume();
+                if (str_is_alnum(current_token->value)) {
+                    if (is_opcode(current_token->value))
+                        current_token->type = TOKEN::OPCODE_T;
+                    else
+                        current_token->type = TOKEN::PLAIN_T;
+                } else if (str_is_num)
+                    current_token->type = TOKEN::NUMERIC_T;
+                push_token(tokens);
+                next();
                 break;
         }
     }

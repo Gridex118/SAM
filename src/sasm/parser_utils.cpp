@@ -1,8 +1,5 @@
 #include "parser.hpp"
 #include "../vm/vm.h"
-#include <iostream>
-#include <iomanip>
-#include <assert.h>
 
 using namespace parse;
 
@@ -13,6 +10,10 @@ std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"storer", OPCODE::STORER}, {"storem", OPCODE::STOREM}, {"jmp", OPCODE::JMP},
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
+
+bool is_opcode(const std::string &candidate) {
+    return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
+}
 
 std::vector<uint16_t>* string_to_words(std::string str) {
     std::vector<uint16_t> *words = new std::vector<uint16_t>;

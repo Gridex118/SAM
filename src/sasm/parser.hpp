@@ -20,20 +20,23 @@ namespace parse
         int line;
     };
 
-    typedef std::vector<TOKEN*> TokenContainer;
+    typedef std::vector<Token*> TokenContainer;
 
+    bool is_opcode(const std::string &candidate);
+
+    template <class S>
     class Tokenizer {
         private:
-            const char *source_name;
-            std::ifstream source;
+            S source;
             char current_char;
+            Token *current_token;
+            inline void push_token(TokenContainer *&container);
             inline void next();
+            inline void consume();
             int line = 1;
         public:
             TokenContainer* tokenize();
-            Tokenizer(const char *source_name): source_name(source_name){
-                source.open(source_name);
-            }
+            Tokenizer(S &source): source(source) {};
     };
 
 }
