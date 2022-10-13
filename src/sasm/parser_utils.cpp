@@ -1,8 +1,6 @@
 #include "parser.hpp"
 #include "../vm/vm.h"
 
-using namespace parse;
-
 std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
     {"arith", OPCODE::ARITH}, {"bshift", OPCODE::BSHIFT}, {"logic", OPCODE::LOGIC},
@@ -11,7 +9,7 @@ std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
 
-bool is_opcode(const std::string &candidate) {
+bool parse::is_opcode(const std::string &candidate) {
     return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
 }
 

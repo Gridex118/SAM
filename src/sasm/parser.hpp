@@ -24,10 +24,9 @@ namespace parse
 
     bool is_opcode(const std::string &candidate);
 
-    template <class S>
     class Tokenizer {
         private:
-            S source;
+            std::ifstream source;
             char current_char;
             Token *current_token;
             inline void push_token(TokenContainer *&container);
@@ -36,7 +35,9 @@ namespace parse
             int line = 1;
         public:
             TokenContainer* tokenize();
-            Tokenizer(S &source): source(source) {};
+            Tokenizer(const std::string &source_name) {
+                source.open(source_name);
+            }
     };
 
 }

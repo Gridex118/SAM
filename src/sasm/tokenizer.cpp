@@ -22,25 +22,21 @@ inline bool is_terminal(const char &candidate) {
     );
 }
 
-template<class S>
-inline void Tokenizer<S>::next() {
+inline void Tokenizer::next() {
     source >> std::noskipws >> current_char;
 }
 
-template<class S>
-inline void Tokenizer<S>::consume() {
+inline void Tokenizer::consume() {
     current_token->value += current_char;
     next();
 }
 
-template<class S>
-inline void Tokenizer<S>::push_token(TokenContainer *&container) {
+inline void Tokenizer::push_token(TokenContainer *&container) {
     container->push_back(current_token);
     current_token = new Token;
 }
 
-template<class S>
-TokenContainer* Tokenizer<S>::tokenize() {
+TokenContainer* Tokenizer::tokenize() {
     next();
     TokenContainer *tokens = new TokenContainer;
     current_token = new Token;
