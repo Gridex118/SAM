@@ -3,15 +3,23 @@
 
 int main() {
     std::string test_input = "push 100";
-    parse::Token *push, *hundred;
-    push->type = parse::TOKEN::OPCODE_T;
-    push->line = 1;
-    push->value = "push";
-    hundred->type = parse::TOKEN::NUMERIC_T;
-    hundred->line = 1;
-    hundred->value = "100";
+    parse::Token *push = new parse::Token {
+        parse::TOKEN::OPCODE_T, "push", 1
+    };
+    parse::Token *hundred = new parse::Token {
+        parse::TOKEN::NUMERIC_T, "100", 1
+    };
     parse::TokenContainer *expected = new parse::TokenContainer;
     expected->push_back(push);
     expected->push_back(hundred);
-    parse::Tokenizer tokenizer("push_100.sasm");
+    parse::Tokenizer tokenizer("tests/push_100.sasm");
+    parse::TokenContainer *candidate = tokenizer.tokenize();
+    for (int i = 0; i < static_cast<int>(expected->size()); ++i){
+        parse::Token token_e = *(*expected)[i];
+        parse::Token token_c = *(*candidate)[i];
+        std::cout << token_e.type << " " << token_c.type << '\n';
+        std::cout << token_e.value << " " << token_c.value << '\n';
+        std::cout << token_e.line << " " << token_c.line << "\n\n";
+    }
+    return 0;
 }

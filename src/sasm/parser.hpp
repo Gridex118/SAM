@@ -1,7 +1,6 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#include <unordered_map>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -29,15 +28,13 @@ namespace parse
             std::ifstream source;
             char current_char;
             Token *current_token;
-            inline void push_token(TokenContainer *&container);
+            inline void push_token(TokenContainer *container);
             inline void next();
             inline void consume();
             int line = 1;
         public:
             TokenContainer* tokenize();
-            Tokenizer(const std::string &source_name) {
-                source.open(source_name);
-            }
+            Tokenizer(const char *source_name);
     };
 
 }

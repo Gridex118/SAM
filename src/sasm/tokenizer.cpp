@@ -1,17 +1,18 @@
 #include "parser.hpp"
 #include "ctype.h"
+#include <iostream>
 
 using namespace parse;
 
 inline bool str_is_alnum(const std::string &candidate) {
     auto i = candidate.begin();
-    for (i; (i != candidate.end()) && (std::isalnum(*i)); ++i);
+    while ((i != candidate.end()) && (std::isalnum(*i))) ++i;
     return (i == candidate.end());
 }
 
 inline bool str_is_num(const std::string &candidate) {
     auto i = candidate.begin();
-    for (i; (i != candidate.end()) && (std::isdigit(*i)); ++i);
+    while ((i != candidate.end()) && (std::isdigit(*i))) ++i;
     return (i == candidate.end());
 }
 
@@ -20,6 +21,10 @@ inline bool is_terminal(const char &candidate) {
         (candidate == '\n') || (candidate == ' ')
         || (candidate == '\t')
     );
+}
+
+Tokenizer::Tokenizer(const char *source_name) {
+    source.open(source_name);
 }
 
 inline void Tokenizer::next() {
@@ -31,7 +36,7 @@ inline void Tokenizer::consume() {
     next();
 }
 
-inline void Tokenizer::push_token(TokenContainer *&container) {
+inline void Tokenizer::push_token(TokenContainer *container) {
     container->push_back(current_token);
     current_token = new Token;
 }
@@ -69,15 +74,15 @@ TokenContainer* Tokenizer::tokenize() {
             default:
                 current_token->line = line;
                 while (!is_terminal(current_char)) consume();
-                if (str_is_alnum(current_token->value)) {
+                if (str_is_num(current_token->value)) {
+                    current_token->type = TOKEN::NUMERIC_T;
+                } else if (str_is_alnum(current_token->value)) {
                     if (is_opcode(current_token->value))
                         current_token->type = TOKEN::OPCODE_T;
                     else
                         current_token->type = TOKEN::PLAIN_T;
-                } else if (str_is_num)
-                    current_token->type = TOKEN::NUMERIC_T;
+                }
                 push_token(tokens);
-                next();
                 break;
         }
     }

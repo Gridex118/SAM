@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "../vm/vm.h"
+#include <unordered_map>
 
 std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
     {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
