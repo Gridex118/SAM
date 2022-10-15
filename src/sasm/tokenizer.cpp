@@ -19,12 +19,14 @@ inline bool str_is_num(const std::string &candidate) {
 inline bool is_terminal(const char &candidate) {
     return (
         (candidate == '\n') || (candidate == ' ')
-        || (candidate == '\t')
+        || (candidate == '\t') || (candidate == '\r')
     );
 }
 
 Tokenizer::Tokenizer(const char *source_name) {
     source.open(source_name);
+    next();
+    current_token = new Token;
 }
 
 inline void Tokenizer::next() {
@@ -42,14 +44,12 @@ inline void Tokenizer::push_token(TokenContainer *container) {
 }
 
 TokenContainer* Tokenizer::tokenize() {
-    next();
     TokenContainer *tokens = new TokenContainer;
-    current_token = new Token;
     while (source) {
         switch (current_char) {
             case ';':
                 // Marks a comment; skip the remaining line
-                while (current_char != '\n') next();
+                while ((current_char != '\n') && source) next();
                 break;
             case '"':
                 current_token->line = line;
@@ -57,7 +57,7 @@ TokenContainer* Tokenizer::tokenize() {
                 next();
                 while (current_char != '"') consume();
                 push_token(tokens);
-                next();
+                next();    // Skip the last "
                 break;
             case '.':
                 current_token->line = line;

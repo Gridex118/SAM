@@ -1,6 +1,18 @@
 #include "../src/sasm/parser.hpp"
 #include <iostream>
 
+inline bool operator==(parse::Token &left, parse::Token &right) {
+    return (
+        (left.type == right.type)
+        && (left.value == right.value)
+        && (left.line == right.line)
+    );
+}
+
+inline bool operator!=(parse::Token &left, parse::Token &right) {
+    return !(left == right);
+}
+
 int main() {
     std::string test_input = "push 100";
     parse::Token *push = new parse::Token {
@@ -14,12 +26,18 @@ int main() {
     expected->push_back(hundred);
     parse::Tokenizer tokenizer("tests/push_100.sasm");
     parse::TokenContainer *candidate = tokenizer.tokenize();
+    if (candidate->size() != expected->size()) {
+        std::cerr << "Test Failed\n";
+            return -1;
+    }
     for (int i = 0; i < static_cast<int>(expected->size()); ++i){
         parse::Token token_e = *(*expected)[i];
         parse::Token token_c = *(*candidate)[i];
-        std::cout << token_e.type << " " << token_c.type << '\n';
-        std::cout << token_e.value << " " << token_c.value << '\n';
-        std::cout << token_e.line << " " << token_c.line << "\n\n";
+        if (token_e != token_c) {
+            std::cerr << "Test Falied\n";
+            return -1;
+        }
     }
+    std::cout << "Test Passed\n";
     return 0;
 }
