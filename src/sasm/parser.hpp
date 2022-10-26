@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <unordered_map>
+#include "../vm/vm.h"
 
 namespace parse
 {
@@ -15,13 +17,14 @@ namespace parse
 
     struct Token {
         TOKEN type;
-        std::string value = "";
+        std::string str_value = "";
+        int int_value = 0;
         int line;
     };
 
     typedef std::vector<Token*> TokenContainer;
 
-    bool is_opcode(const std::string &candidate);
+    extern std::unordered_map<std::string, OPCODE> OPCODE_MAP;
 
     class Tokenizer {
         private:

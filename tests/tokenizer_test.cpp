@@ -4,7 +4,8 @@
 inline bool operator==(parse::Token &left, parse::Token &right) {
     return (
         (left.type == right.type)
-        && (left.value == right.value)
+        && (left.str_value == right.str_value)
+        && (left.int_value == right.int_value)
         && (left.line == right.line)
     );
 }
@@ -16,10 +17,10 @@ inline bool operator!=(parse::Token &left, parse::Token &right) {
 int main() {
     std::string test_input = "push 100";
     parse::Token *push = new parse::Token {
-        parse::TOKEN::OPCODE_T, "push", 1
+        parse::TOKEN::OPCODE_T, "push", 0, 1
     };
     parse::Token *hundred = new parse::Token {
-        parse::TOKEN::NUMERIC_T, "100", 1
+        parse::TOKEN::NUMERIC_T, "100", 100, 1
     };
     parse::TokenContainer *expected = new parse::TokenContainer;
     expected->push_back(push);

@@ -1,18 +1,12 @@
 #include "parser.hpp"
-#include "../vm/vm.h"
-#include <unordered_map>
 
-std::unordered_map<std::string, OPCODE> OPCODE_MAP = {
+std::unordered_map<std::string, OPCODE> parse::OPCODE_MAP = {
     {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
     {"arith", OPCODE::ARITH}, {"bshift", OPCODE::BSHIFT}, {"logic", OPCODE::LOGIC},
     {"compare", OPCODE::COMPARE}, {"loadr", OPCODE::LOADR}, {"loadm", OPCODE::LOADM},
     {"storer", OPCODE::STORER}, {"storem", OPCODE::STOREM}, {"jmp", OPCODE::JMP},
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
-
-bool parse::is_opcode(const std::string &candidate) {
-    return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
-}
 
 std::vector<uint16_t>* string_to_words(std::string str) {
     std::vector<uint16_t> *words = new std::vector<uint16_t>;

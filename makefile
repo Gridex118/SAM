@@ -14,5 +14,7 @@ all: vm.out
 vm.out: $(VM_SRC)
 	gcc $(C_ARGS) $(VM_SRC) -o vm.out
 
+tests: tokenizer_test.out
+
 tokenizer_test.out: $(TOKENIZER_TEST_SRC)
 	g++ $(CPP_ARGS) $(TOKENIZER_TEST_SRC) -o tokenizer_test.out
