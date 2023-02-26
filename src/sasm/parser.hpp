@@ -40,6 +40,30 @@ namespace parse
             Tokenizer(const char *source_name);
     };
 
+    struct IteratorFileNameTuple{
+        TokenContainer::iterator iterator;
+        TokenContainer::iterator end;
+        char *source_file_name;
+    };
+
+    using ParserOutput = Token;
+
+    typedef std::vector<ParserOutput*> ParserOutputContainer;
+
+    class Parser {
+        private:
+            char *current_source_file_name;
+            int instruction_count = 0;
+            std::unordered_map<std::string, int> data;
+            std::vector<IteratorFileNameTuple*> history;
+            IteratorFileNameTuple *current_ifnt;
+            inline int push_new_ifnt();
+            ParserOutputContainer* parse(char *file_name);
+        public:
+            ParserOutputContainer* parse();
+            Parser(char *source_name);
+    };
+
 }
 
 #endif
