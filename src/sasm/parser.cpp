@@ -43,14 +43,27 @@ Parser::Parser(char *source_name) {
 }
 
 ParserOutputContainer* Parser::parse() {
-    return parse(current_source_file_name);
+    return replace_labels(parse(current_source_file_name));
+}
+
+ParserOutputContainer* Parser::replace_labels(ParserOutputContainer* raw_output) {
+    for (auto token_iterator = raw_output->begin(); token_iterator != raw_output->end(); ++token_iterator) {
+        Token *token = *token_iterator;
+        if (token->type == TOKEN::PLAIN_T) {
+            if (data.find(token->str_value) != data.end()) {
+                // if the string value is found, it must be a label, and its value should, thus, be substituted with the instruction index
+                token->type = TOKEN::NUMERIC_T;
+                token->int_value = data[token->str_value];
+                token->str_value = "";
+            }
+        }
+    }
 }
 
 ParserOutputContainer* Parser::parse(char *file_name) {
     current_source_file_name = file_name;
     ParserOutputContainer *outputs = new ParserOutputContainer;
     if (push_new_ifnt() == -1) return NULL;
-    // Iterate throught the tokens
     for (auto token_iterator = current_ifnt->iterator; token_iterator != current_ifnt->end; ++token_iterator) {
         Token *token = *token_iterator;
         switch (token->type) {
@@ -67,7 +80,7 @@ ParserOutputContainer* Parser::parse(char *file_name) {
                 switch (directive_type((token)->str_value)) {
                     case DIRECTIVE::LABEL:
                         // If its a LABEL DIRECTIVE, add (label name : current instruction count) to the data map
-                        data[directive_value(token->str_value)] = instruction_count + 1; // +1 since the vm increments the ip for every instruction
+                        data[directive_value(token->str_value)] = instruction_count - 1; // -1, since the vm increments the instruction pointer after the instruction is read
                         break;
                     case DIRECTIVE::SECTION:
                         // If its a SECTION DIRECTIVE, add it to outputs
@@ -83,8 +96,9 @@ ParserOutputContainer* Parser::parse(char *file_name) {
                             for (auto output = included_outputs->begin(); output != included_outputs->end(); ++output)
                                 outputs->push_back(*output);
                         }
-                        // since parse adds an IFNT to the history, pop it off
+                        // since parse adds an IFNT to the history, pop it off; then, set the last IFNT as current
                         history.pop_back();
+                        current_ifnt = history[history.size() - 1];
                         break;
                     default:
                         return NULL;

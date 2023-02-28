@@ -59,6 +59,7 @@ namespace parse
             IteratorFileNameTuple *current_ifnt;
             inline int push_new_ifnt();
             ParserOutputContainer* parse(char *file_name);
+            ParserOutputContainer* replace_labels(ParserOutputContainer *raw_output);
         public:
             ParserOutputContainer* parse();
             Parser(char *source_name);
