@@ -54,12 +54,16 @@ namespace parse
         private:
             char *current_source_file_name;
             int instruction_count = 0;
+			struct {
+				unsigned int label : 1;
+				unsigned int include : 1;
+			} flags;
             std::unordered_map<std::string, int> data;
             std::vector<IteratorFileNameTuple*> history;
             IteratorFileNameTuple *current_ifnt;
             inline int push_new_ifnt();
             ParserOutputContainer* parse(char *file_name);
-            ParserOutputContainer* replace_labels(ParserOutputContainer *raw_output);
+            void replace_labels(ParserOutputContainer *raw_output);
         public:
             ParserOutputContainer* parse();
             Parser(char *source_name);

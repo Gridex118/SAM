@@ -5,21 +5,10 @@
 using namespace parse;
 
 inline DIRECTIVE directive_type(std::string candidate) {
-    std::string first_word = "";
-    for (int i=0; candidate[i] != ' '; ++i) {
-        first_word += candidate[i];
-    }
-    if (first_word == "SECTION") return DIRECTIVE::SECTION;
-    else if (first_word == "LABEL") return DIRECTIVE::LABEL;
-    else if (first_word == "INCLUDE") return DIRECTIVE::INCLUDE;
+    if (candidate == "SECTION") return DIRECTIVE::SECTION;
+    else if (candidate == "LABEL") return DIRECTIVE::LABEL;
+    else if (candidate  == "INCLUDE") return DIRECTIVE::INCLUDE;
     else return DIRECTIVE::NO_MATCH;
-}
-
-inline std::string directive_value(std::string candidate) {
-    // Skip the first word(which specifies the type), demarcated by the space.
-    int i=0;
-    for (i; candidate[i] != ' '; ++i);
-    return candidate.substr(i+1);   // +1 to skip the space
 }
 
 inline int Parser::push_new_ifnt() {
@@ -43,10 +32,12 @@ Parser::Parser(char *source_name) {
 }
 
 ParserOutputContainer* Parser::parse() {
-    return replace_labels(parse(current_source_file_name));
+	ParserOutputContainer *outputs = parse(current_source_file_name);
+    replace_labels(outputs);
+	return outputs;
 }
 
-ParserOutputContainer* Parser::replace_labels(ParserOutputContainer* raw_output) {
+void Parser::replace_labels(ParserOutputContainer* raw_output) {
     for (auto token_iterator = raw_output->begin(); token_iterator != raw_output->end(); ++token_iterator) {
         Token *token = *token_iterator;
         if (token->type == TOKEN::PLAIN_T) {
@@ -67,8 +58,25 @@ ParserOutputContainer* Parser::parse(char *file_name) {
     for (auto token_iterator = current_ifnt->iterator; token_iterator != current_ifnt->end; ++token_iterator) {
         Token *token = *token_iterator;
         switch (token->type) {
-            case TOKEN::PLAIN_T: case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
-                // If its a PLAIN, STRING, NUMERIC just add it to outputs
+            case TOKEN::PLAIN_T: 
+				if (flags.label == 1) {
+					data[token->str_value] = instruction_count;
+					flags.label = 0;
+					break;
+				} else if (flags.include == 1) {
+					char file_name[1024];
+					strcpy(file_name, (token->str_value).c_str());
+					ParserOutputContainer *included_outputs = parse(file_name);
+					if (included_outputs == NULL) return NULL;
+					for (auto output = included_outputs->begin(); output != included_outputs->end(); ++output)
+						outputs->push_back(*output);
+					flags.include = 0;
+					history.pop_back();
+					current_ifnt = history[history.size() - 1];
+					break;
+				}
+			case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
+                // If its a PLAIN(and neither the label nor the include flag is not set to 1), STRING, NUMERIC just add it to outputs
                 outputs->push_back(token);
                 break;
             case TOKEN::OPCODE_T:
@@ -79,26 +87,15 @@ ParserOutputContainer* Parser::parse(char *file_name) {
             case TOKEN::DIRECTIVE_T:
                 switch (directive_type((token)->str_value)) {
                     case DIRECTIVE::LABEL:
-                        // If its a LABEL DIRECTIVE, add (label name : current instruction count) to the data map
-                        data[directive_value(token->str_value)] = instruction_count - 1; // -1, since the vm increments the instruction pointer after the instruction is read
+                        // If its a LABEL DIRECTIVE, set label flag to 1; the next (plain) token will be used as a label name
+						flags.label = 1;
                         break;
                     case DIRECTIVE::SECTION:
                         // If its a SECTION DIRECTIVE, add it to outputs
                         outputs->push_back(token);
                         break;
                     case DIRECTIVE::INCLUDE:
-                        // If its an INCLUDE DIRECTIVE, call parse, and add the included tokens to output
-                        {
-                            char file_name[1024];
-                            strcpy(file_name, directive_value(token->str_value).c_str());
-                            ParserOutputContainer *included_outputs = parse(file_name);
-                            if (included_outputs == NULL) return NULL;
-                            for (auto output = included_outputs->begin(); output != included_outputs->end(); ++output)
-                                outputs->push_back(*output);
-                        }
-                        // since parse adds an IFNT to the history, pop it off; then, set the last IFNT as current
-                        history.pop_back();
-                        current_ifnt = history[history.size() - 1];
+						flags.include = 1;
                         break;
                     default:
                         return NULL;
