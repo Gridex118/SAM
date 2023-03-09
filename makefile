@@ -5,7 +5,8 @@ VM_SRC = src/vm/vm.c \
 	 	src/vm/main_util.c \
 	 	src/vm/main.c
 
-PARSER_TEST_SRC = src/sasm/tokenizer.cpp \
+PARSER_TEST_SRC = src/sasm/parser_utils.cpp \
+				  src/sasm/tokenizer.cpp \
 				  src/sasm/parser.cpp \
 				  tests/parser_test.cpp
 

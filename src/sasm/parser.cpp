@@ -11,22 +11,6 @@ inline DIRECTIVE directive_type(std::string candidate) {
     else return DIRECTIVE::NO_MATCH;
 }
 
-inline int Parser::push_new_ifnt() {
-    // Get the tokens for the current source file
-    Tokenizer tokenizer(current_source_file_name);
-    TokenContainer *tokens = tokenizer.tokenize();
-    // Make an IteratorFileNameTuple, and add it to the history
-    IteratorFileNameTuple *new_ifnt = new IteratorFileNameTuple;
-    if (new_ifnt == NULL) return -1;
-    new_ifnt->iterator = tokens->begin();
-    new_ifnt->end = tokens->end();
-    new_ifnt->source_file_name = current_source_file_name;
-    history.push_back(new_ifnt);
-    // Set the new ifnt as current
-    current_ifnt = new_ifnt;
-    return 0;
-}
-
 Parser::Parser(char *source_name) {
     current_source_file_name = source_name;
 }
@@ -52,9 +36,8 @@ void Parser::replace_labels(ParserOutputContainer* raw_output) {
 }
 
 ParserOutputContainer* Parser::parse(char *file_name) {
-    current_source_file_name = file_name;
+	Tokenizer tokenizer(file_name);
     ParserOutputContainer *outputs = new ParserOutputContainer;
-    if (push_new_ifnt() == -1) return NULL;
     for (auto token_iterator = current_ifnt->iterator; token_iterator != current_ifnt->end; ++token_iterator) {
         Token *token = *token_iterator;
         switch (token->type) {
