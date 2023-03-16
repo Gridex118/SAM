@@ -16,7 +16,8 @@ Parser::Parser(char *source_name) {
 }
 
 ParserOutputContainer* Parser::parse() {
-	ParserOutputContainer *outputs = parse(current_source_file_name);
+	ParserOutputContainer *outputs = new ParserOutputContainer;
+	parse(current_source_file_name, outputs);
     replace_labels(outputs);
 	return outputs;
 }
@@ -35,59 +36,51 @@ void Parser::replace_labels(ParserOutputContainer* raw_output) {
     }
 }
 
-ParserOutputContainer* Parser::parse(char *file_name) {
+void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
 	Tokenizer tokenizer(file_name);
-    ParserOutputContainer *outputs = new ParserOutputContainer;
-    for (auto token_iterator = current_ifnt->iterator; token_iterator != current_ifnt->end; ++token_iterator) {
+	TokenContainer *tokens = tokenizer.tokenize();
+    for (auto token_iterator = tokens->begin(); token_iterator != tokens->end(); ++token_iterator) {
         Token *token = *token_iterator;
         switch (token->type) {
             case TOKEN::PLAIN_T: 
-				if (flags.label == 1) {
+				if (flags.expecting_label == 1) {
 					data[token->str_value] = instruction_count;
-					flags.label = 0;
+					flags.expecting_label = 0;
 					break;
-				} else if (flags.include == 1) {
+				} else if (flags.expecting_include == 1) {
 					char file_name[1024];
 					strcpy(file_name, (token->str_value).c_str());
-					ParserOutputContainer *included_outputs = parse(file_name);
-					if (included_outputs == NULL) return NULL;
-					for (auto output = included_outputs->begin(); output != included_outputs->end(); ++output)
-						outputs->push_back(*output);
-					flags.include = 0;
-					history.pop_back();
-					current_ifnt = history[history.size() - 1];
+					parse(file_name, output_sink);
+					flags.expecting_include = 0;
 					break;
 				}
 			case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
-                // If its a PLAIN(and neither the label nor the include flag is not set to 1), STRING, NUMERIC just add it to outputs
-                outputs->push_back(token);
+                // If its a PLAIN(and neither the label nor the include flag is set to 1), STRING, NUMERIC just add it to outputs
+                output_sink->push_back(token);
                 break;
             case TOKEN::OPCODE_T:
                 // If its an OPCODE, increment the instruction counter, and add the token to outputs
                 ++instruction_count;
-                outputs->push_back(token);
+                output_sink->push_back(token);
                 break;
             case TOKEN::DIRECTIVE_T:
                 switch (directive_type((token)->str_value)) {
                     case DIRECTIVE::LABEL:
                         // If its a LABEL DIRECTIVE, set label flag to 1; the next (plain) token will be used as a label name
-						flags.label = 1;
+						flags.expecting_label = 1;
                         break;
                     case DIRECTIVE::SECTION:
                         // If its a SECTION DIRECTIVE, add it to outputs
-                        outputs->push_back(token);
+                        output_sink->push_back(token);
                         break;
                     case DIRECTIVE::INCLUDE:
-						flags.include = 1;
+						flags.expecting_include = 1;
                         break;
                     default:
-                        return NULL;
                         break;
                 }
             default:
-                return NULL;
                 break;
         }
     }
-    return outputs;
 }

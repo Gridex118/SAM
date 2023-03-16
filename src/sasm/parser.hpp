@@ -40,12 +40,6 @@ namespace parse
             Tokenizer(const char *source_name);
     };
 
-    struct IteratorFileNameTuple{
-        TokenContainer::iterator iterator;
-        TokenContainer::iterator end;
-        char *source_file_name;
-    };
-
     using ParserOutput = Token;
 
     typedef std::vector<ParserOutput*> ParserOutputContainer;
@@ -55,14 +49,11 @@ namespace parse
             char *current_source_file_name;
             int instruction_count = 0;
 			struct {
-				unsigned int label : 1;
-				unsigned int include : 1;
+				unsigned int expecting_label : 1;
+				unsigned int expecting_include : 1;
 			} flags;
             std::unordered_map<std::string, int> data;
-            std::vector<IteratorFileNameTuple*> history;
-            IteratorFileNameTuple *current_ifnt;
-            inline int push_new_ifnt();
-            ParserOutputContainer* parse(char *file_name);
+            void parse(char *file_name, ParserOutputContainer*& output_sink);
             void replace_labels(ParserOutputContainer *raw_output);
         public:
             ParserOutputContainer* parse();
