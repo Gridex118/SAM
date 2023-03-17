@@ -42,17 +42,18 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
     for (auto token_iterator = tokens->begin(); token_iterator != tokens->end(); ++token_iterator) {
         Token *token = *token_iterator;
         switch (token->type) {
-            case TOKEN::PLAIN_T: 
-				if (flags.expecting_label == 1) {
-					data[token->str_value] = instruction_count;
-					flags.expecting_label = 0;
-					break;
-				} else if (flags.expecting_include == 1) {
-					char file_name[1024];
-					strcpy(file_name, (token->str_value).c_str());
-					parse(file_name, output_sink);
-					flags.expecting_include = 0;
-					break;
+            case TOKEN::PLAIN_T:
+				{
+					if (flags.expecting_label == 1) {
+						flags.expecting_label = 0;
+						break;
+					} else if (flags.expecting_include == 1) {
+						flags.expecting_include = 0;
+						char include_file[1024];
+						strcpy(include_file, (token->str_value).c_str());
+						parse(include_file, output_sink);
+						break;
+					}
 				}
 			case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
                 // If its a PLAIN(and neither the label nor the include flag is set to 1), STRING, NUMERIC just add it to outputs

@@ -8,12 +8,6 @@ inline bool is_opcode(const std::string &candidate) {
     return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
 }
 
-inline bool str_is_alnum(const std::string &candidate) {
-    auto i = candidate.begin();
-    while ((i != candidate.end()) && (std::isalnum(*i))) ++i;
-    return (i == candidate.end());
-}
-
 inline bool str_is_num(const std::string &candidate) {
     auto i = candidate.begin();
     while ((i != candidate.end()) && (std::isdigit(*i))) ++i;
@@ -81,7 +75,7 @@ TokenContainer* Tokenizer::tokenize() {
                 if (str_is_num(current_token->str_value)) {
                     current_token->type = TOKEN::NUMERIC_T;
                     current_token->int_value = std::stoi(current_token->str_value);
-                } else if (str_is_alnum(current_token->str_value)) {
+                } else {
                     if (is_opcode(current_token->str_value))
                         current_token->type = TOKEN::OPCODE_T;
                     else
