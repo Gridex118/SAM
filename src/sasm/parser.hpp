@@ -48,10 +48,10 @@ namespace parse
         private:
             char *current_source_file_name;
             int instruction_count = 0;
-			struct {
-				unsigned int expecting_label : 1;
-				unsigned int expecting_include : 1;
-			} flags { 0, 0 };
+            struct {
+                unsigned int expecting_label : 1;
+                unsigned int expecting_include : 1;
+            } flags { 0, 0 };
             std::unordered_map<std::string, int> data;
             void parse(char *file_name, ParserOutputContainer*& output_sink);
             void replace_labels(ParserOutputContainer *raw_output);
