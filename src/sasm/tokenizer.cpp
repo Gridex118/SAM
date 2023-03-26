@@ -4,6 +4,14 @@
 
 using namespace parse;
 
+std::unordered_map<std::string, OPCODE> parse::OPCODE_MAP = {
+    {"push", OPCODE::PUSH}, {"pop", OPCODE::POP}, {"dup", OPCODE::DUP},
+    {"arith", OPCODE::ARITH}, {"bshift", OPCODE::BSHIFT}, {"logic", OPCODE::LOGIC},
+    {"compare", OPCODE::COMPARE}, {"loadr", OPCODE::LOADR}, {"loadm", OPCODE::LOADM},
+    {"storer", OPCODE::STORER}, {"storem", OPCODE::STOREM}, {"jmp", OPCODE::JMP},
+    {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
+};
+
 inline bool is_opcode(const std::string &candidate) {
     return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
 }
