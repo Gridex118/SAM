@@ -9,8 +9,15 @@ namespace assemble {
     class SamAssembler {
         private:
             std::ofstream sink;
-            std::string source_file;
-            inline int write(uint16_t instruction);
+            char *source_file;
+            inline int write();
+            inline int write(int instruction);
+            inline int write(std::string str);
+            struct {
+                uint16_t instruction;
+                uint8_t parameters_due;
+                int opcode;
+            } instr_data{ 0, 0, 0 };
         public:
             SamAssembler(char* source_file, char* sink_file);
             int assemble();

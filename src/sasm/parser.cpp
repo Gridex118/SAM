@@ -97,8 +97,19 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
                     strcpy(include_file, (token->str_value).c_str());
                     parse(include_file, output_sink);
                     break;
+                } else if (flags.expecting_section == 1) {
+                    flags.expecting_section = 0;
+                    if (token->str_value == "CODE") {
+                        token->int_value = CODE_SECTION_START;
+                    } else if (token->str_value == "MEM") {
+                        token->int_value = MEM_SECTION_START;
+                    }
                 } else {
-                    token->int_value = match_parameter(token->str_value);
+                    int int_value = match_parameter(token->str_value);
+                    if (int_value != -1) {
+                        token->type = NUMERIC_T;
+                        token->int_value = int_value;
+                    }
                 }
             case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
                 // If its a PLAIN(and neither the label nor the include flag is set to 1), STRING, NUMERIC just add it to outputs
@@ -118,7 +129,7 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
                         break;
                     case DIRECTIVE::SECTION:
                         // If its a SECTION DIRECTIVE, add it to outputs
-                        output_sink->push_back(token);
+                        flags.expecting_section = 1;
                         break;
                     case DIRECTIVE::INCLUDE:
                         flags.expecting_include = 1;

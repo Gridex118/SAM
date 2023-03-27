@@ -51,6 +51,7 @@ namespace parse
             struct {
                 unsigned int expecting_label : 1;
                 unsigned int expecting_include : 1;
+                unsigned int expecting_section : 1;
             } flags { 0, 0 };
             std::unordered_map<std::string, int> data;
             void parse(char *file_name, ParserOutputContainer*& output_sink);
