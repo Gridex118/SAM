@@ -4,49 +4,29 @@
 
 using namespace parse;
 
-int match_parameter(const std::string &candidate){
-    if (candidate == "high") return BYTE_ORDERS::HIGH;
-    else if (candidate == "low") return BYTE_ORDERS::LOW;
-    else if (candidate == "add") return ARITHMETIC_OPERATIONS::ADD;
-    else if (candidate == "sub") return ARITHMETIC_OPERATIONS::SUB;
-    else if (candidate == "mult") return ARITHMETIC_OPERATIONS::MULT;
-    else if (candidate == "div") return ARITHMETIC_OPERATIONS::DIV;
-    else if (candidate == "incr") return ARITHMETIC_OPERATIONS::INCR;
-    else if (candidate == "and") return LOGICAL_OPERATIONS::AND;
-    else if (candidate == "or") return LOGICAL_OPERATIONS::OR;
-    else if (candidate == "not") return LOGICAL_OPERATIONS::NOT;
-    else if (candidate == "left") return BSHIFT_PARA::LEFT;
-    else if (candidate == "right") return BSHIFT_PARA::RIGHT;
-    else if (candidate == "eql") return COMPARISON_PARA::EQL;
-    else if (candidate == "neql") return COMPARISON_PARA::NEQL;
-    else if (candidate == "ls") return COMPARISON_PARA::LS;
-    else if (candidate == "gr") return COMPARISON_PARA::GR;
-    else if (candidate == "input") return IO_PARA::INPUT;
-    else if (candidate == "print") return IO_PARA::PRINT;
-    else if (candidate == "print_eseq") return IO_PARA::PRINT_ESEQ;
-    else if (candidate == "integer") return IO_TYPES::INTEGER;
-    else if (candidate == "string") return IO_TYPES::STRING;
-    else if (candidate == "char") return IO_TYPES::CHAR;
-    else if (candidate == "newline") return ESCAPE_SEQUENCES::NEWLINE;
-    else if (candidate == "return_carriage") return ESCAPE_SEQUENCES::RETURN_CARRIAGE;
-    else if (candidate == "uncond") return JUMP_OPTIONS::UNCOND;
-    else if (candidate == "cond") return JUMP_OPTIONS::COND;
-    else if (candidate == "call") return FUNCT_OPTIONS::CALL;
-    else if (candidate == "return") return FUNCT_OPTIONS::RETURN;
-    else if (candidate == "Ra") return REGISTERS::Ra;
-    else if (candidate == "Rb") return REGISTERS::Rb;
-    else if (candidate == "Rc") return REGISTERS::Rc;
-    else if (candidate == "Rsp") return REGISTERS::Rsp;
-    else if (candidate == "Rip") return REGISTERS::Rip;
-    else if (candidate == "Rcom") return REGISTERS::Rcom;
-    else if (candidate == "Rhlt") return REGISTERS::Rhlt;
-    else if (candidate == "Rerr") return REGISTERS::Rerr;
-    else if (candidate == "Rcbindx") return REGISTERS::Rcbindx;
-    else if (candidate == "Rvbindx") return REGISTERS::Rvbindx;
-    else if (candidate == "var") return MEMORY_SECTIONS::VAR;
-    else if (candidate == "code") return MEMORY_SECTIONS::CODE;
-    else return -1;
-}
+std::unordered_map<std::string, int> PARAMETER_MAP = {
+    {"high", BYTE_ORDERS::HIGH}, {"low", BYTE_ORDERS::LOW},
+    {"add", ARITHMETIC_OPERATIONS::ADD}, {"sub", ARITHMETIC_OPERATIONS::SUB},
+    {"mult", ARITHMETIC_OPERATIONS::MULT}, {"div", ARITHMETIC_OPERATIONS::DIV},
+    {"incr", ARITHMETIC_OPERATIONS::INCR}, {"and", LOGICAL_OPERATIONS::AND},
+    {"or", LOGICAL_OPERATIONS::OR}, {"not", LOGICAL_OPERATIONS::NOT},
+    {"left", BSHIFT_PARA::LEFT}, {"right", BSHIFT_PARA::RIGHT},
+    {"eql", COMPARISON_PARA::EQL}, {"neql", COMPARISON_PARA::NEQL},
+    {"ls", COMPARISON_PARA::LS}, {"gr", COMPARISON_PARA::GR},
+    {"input", IO_PARA::INPUT}, {"print", IO_PARA::PRINT},
+    {"print_eseq", IO_PARA::PRINT_ESEQ}, {"integer", IO_TYPES::INTEGER},
+    {"string", IO_TYPES::STRING}, {"char", IO_TYPES::CHAR},
+    {"newline", ESCAPE_SEQUENCES::NEWLINE},
+    {"return_carriage", ESCAPE_SEQUENCES::RETURN_CARRIAGE},
+    {"uncond", JUMP_OPTIONS::UNCOND}, {"cond", JUMP_OPTIONS::COND},
+    {"call", FUNCT_OPTIONS::CALL}, {"return", FUNCT_OPTIONS::RETURN},
+    {"Ra", REGISTERS::Ra}, {"Rb", REGISTERS::Rb}, {"Rc", REGISTERS::Rc},
+    {"Rsp", REGISTERS::Rsp}, {"Rip", REGISTERS::Rip},
+    {"Rcom", REGISTERS::Rcom}, {"Rhlt", REGISTERS::Rhlt},
+    {"Rerr", REGISTERS::Rerr}, {"Rcbindx", REGISTERS::Rcbindx},
+    {"Rvbindx", REGISTERS::Rvbindx}, {"var", MEMORY_SECTIONS::VAR},
+    {"code", MEMORY_SECTIONS::CODE}
+};
 
 inline DIRECTIVE directive_type(std::string candidate) {
     if (candidate == "SECTION") return DIRECTIVE::SECTION;
@@ -105,10 +85,9 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
                         token->int_value = MEM_SECTION_START;
                     }
                 } else {
-                    int int_value = match_parameter(token->str_value);
-                    if (int_value != -1) {
+                    if (PARAMETER_MAP.find(token->str_value) != PARAMETER_MAP.end()) {
                         token->type = NUMERIC_T;
-                        token->int_value = int_value;
+                        token->int_value = PARAMETER_MAP[token->str_value];
                     }
                 }
             case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
