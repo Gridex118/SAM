@@ -2,8 +2,8 @@ C_ARGS = -Wall -O0 -g
 CPP_ARGS = -Wall -O0 -g
 
 VM_SRC = src/vm/vm.c \
-	 	src/vm/main_util.c \
-	 	src/vm/main.c
+		src/vm/main_util.c \
+		src/vm/main.c
 
 PARSER_TEST_SRC = src/sasm/tokenizer.cpp \
 				  src/sasm/parser.cpp \
