@@ -1,0 +1,19 @@
+.SECTION CODE
+
+io              input               integer
+push            5
+compare         ls
+jmp             cond                T
+push            0
+jmp             uncond              END
+.LABEL T
+push            3
+.LABEL END
+io              print               string
+io              print_eseq          newline
+halt
+
+.SECTION MEM
+
+"less"
+"greater"

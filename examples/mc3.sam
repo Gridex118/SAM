@@ -1,8 +1,0 @@
-0xFFFE                                     CODE SECTION A
-
-0x000A                                     PUSH 10
-0x000F                                     PUSH 15
-0x3000 0x2000                              ADD 10 AND 15, (DUPLICATE <-- L1)
-0xC000                                     GET INPUT
-0x6001 0xB802                              IF NOT EQUAL GOTO L1
-0xE000                                     HALT

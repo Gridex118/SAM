@@ -5,6 +5,7 @@
 int main(int argc, char **argv){
     if ((argc != 2) && (argc != 3)) {
         std::cout << "Syntax: sasm SOURCE [SINK] \n";
+        return -1;
     } else {
         char sink_file[256];
         if (argc == 2)
@@ -12,9 +13,6 @@ int main(int argc, char **argv){
         else
             std::strcpy(sink_file, argv[2]);
         assemble::SamAssembler assembler(argv[1], sink_file);
-        if (assembler.assemble() == -1) {
-            return -1;
-        }
+        return assembler.assemble();
     }
-    return 0;
 }

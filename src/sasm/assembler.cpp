@@ -49,6 +49,8 @@ inline int SamAssembler::write(std::string str) {
             + static_cast<uint8_t>(str[i+1])
         );    // Consume two charcters at a time
     }
+    if (str.length()%2 == 0)
+        write (0x0000);
     return 0;
 }
 
