@@ -1,5 +1,0 @@
-.LABEL	L1
-	arith		add
-
-jmp		0		L1
-sub

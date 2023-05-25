@@ -1,3 +1,0 @@
-.SECTION CODE
-push	100
-.INCLUDE	tests/add.sasm
