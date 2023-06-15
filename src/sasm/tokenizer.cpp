@@ -12,6 +12,13 @@ std::unordered_map<std::string, OPCODE> parse::OPCODE_MAP = {
     {"io", OPCODE::IO}, {"funct", OPCODE::FUNCT}, {"halt", OPCODE::HALT}
 };
 
+inline TOKEN directive_type(std::string candidate) {
+    if (candidate == "SECTION") return TOKEN::SECTION_DIRECTIVE_T;
+    else if (candidate == "LABEL") return TOKEN::LABEL_DIRECTIVE_T;
+    else if (candidate  == "INCLUDE") return TOKEN::INCLUDE_DIRECTIVE_T;
+    else return TOKEN::NO_MATCH;
+}
+
 inline bool is_opcode(const std::string &candidate) {
     return (OPCODE_MAP.find(candidate) != OPCODE_MAP.end());
 }
@@ -66,11 +73,19 @@ TokenContainer* Tokenizer::tokenize() {
                 next();    // Skip the last "
                 break;
             case '.':
-                current_token->line = line;
-                current_token->type = TOKEN::DIRECTIVE_T;
-                next();
-                while (!is_terminal(current_char)) consume();
-                push_token(tokens);
+                {
+                    std::string directive_name;
+                    current_token->line = line;
+                    next();
+                    while (!is_terminal(current_char)) {
+                        directive_name += current_char;
+                        next();
+                    }
+                    while (is_terminal(current_char)) next();
+                    current_token->type = directive_type(directive_name);
+                    while (!is_terminal(current_char)) consume();
+                    push_token(tokens);
+                }
                 break;
             case '\n':
                 ++line;

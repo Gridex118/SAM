@@ -6,8 +6,8 @@ storer          Ra
 .LABEL  L1
 
 loadr           Ra
-io          print           integer
-io          print_eseq      newline
+io              print           integer
+io              print_eseq      newline
 loadr           Ra
 arith           incr
 storer          Ra

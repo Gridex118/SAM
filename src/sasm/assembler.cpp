@@ -82,7 +82,7 @@ int SamAssembler::assemble() {
                 instr_data.instruction += instr_data.opcode << 12;
                 instr_data.parameters_due = parameters_due_for_opcode(instr_data.opcode);
                 break;
-            case TOKEN::PLAIN_T:
+            case TOKEN::SECTION_DIRECTIVE_T:
                 if (output->str_value == "CODE" || output->str_value == "MEM") {
                     instr_data.instruction = output->int_value;
                 }

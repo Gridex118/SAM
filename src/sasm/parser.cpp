@@ -28,12 +28,6 @@ std::unordered_map<std::string, int> PARAMETER_MAP = {
     {"code", MEMORY_SECTIONS::CODE}
 };
 
-inline DIRECTIVE directive_type(std::string candidate) {
-    if (candidate == "SECTION") return DIRECTIVE::SECTION;
-    else if (candidate == "LABEL") return DIRECTIVE::LABEL;
-    else if (candidate  == "INCLUDE") return DIRECTIVE::INCLUDE;
-    else return DIRECTIVE::NO_MATCH;
-}
 
 Parser::Parser(char *source_name) {
     current_source_file_name = source_name;
@@ -67,28 +61,9 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
         Token *token = *token_iterator;
         switch (token->type) {
             case TOKEN::PLAIN_T:
-                if (flags.expecting_label == 1) {
-                    flags.expecting_label = 0;
-                    data[token->str_value] = instruction_count - 1;
-                    break;
-                } else if (flags.expecting_include == 1) {
-                    flags.expecting_include = 0;
-                    char include_file[1024];
-                    strcpy(include_file, (token->str_value).c_str());
-                    parse(include_file, output_sink);
-                    break;
-                } else if (flags.expecting_section == 1) {
-                    flags.expecting_section = 0;
-                    if (token->str_value == "CODE") {
-                        token->int_value = CODE_SECTION_START;
-                    } else if (token->str_value == "MEM") {
-                        token->int_value = MEM_SECTION_START;
-                    }
-                } else {
-                    if (PARAMETER_MAP.find(token->str_value) != PARAMETER_MAP.end()) {
-                        token->type = NUMERIC_T;
-                        token->int_value = PARAMETER_MAP[token->str_value];
-                    }
+                if (PARAMETER_MAP.find(token->str_value) != PARAMETER_MAP.end()) {
+                    token->type = NUMERIC_T;
+                    token->int_value = PARAMETER_MAP[token->str_value];
                 }
             case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
                 // If its a PLAIN(and neither the label nor the include flag is set to 1), STRING, NUMERIC just add it to outputs
@@ -100,22 +75,24 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
                 ++instruction_count;
                 output_sink->push_back(token);
                 break;
-            case TOKEN::DIRECTIVE_T:
-                switch (directive_type((token)->str_value)) {
-                    case DIRECTIVE::LABEL:
-                        // If its a LABEL DIRECTIVE, set label flag to 1; the next (plain) token will be used as a label name
-                        flags.expecting_label = 1;
-                        break;
-                    case DIRECTIVE::SECTION:
-                        // If its a SECTION DIRECTIVE, add it to outputs
-                        flags.expecting_section = 1;
-                        break;
-                    case DIRECTIVE::INCLUDE:
-                        flags.expecting_include = 1;
-                        break;
-                    default:
-                        break;
+            case TOKEN::LABEL_DIRECTIVE_T:
+                data[token->str_value] = instruction_count - 1;
+                break;
+            case TOKEN::SECTION_DIRECTIVE_T:
+                if (token->str_value == "CODE") {
+                    token->int_value = CODE_SECTION_START;
+                } else if (token->str_value == "MEM") {
+                    token->int_value = MEM_SECTION_START;
                 }
+                output_sink->push_back(token);
+                break;
+            case TOKEN::INCLUDE_DIRECTIVE_T:
+                {
+                    char include_file[1024];
+                    strcpy(include_file, (token->str_value).c_str());
+                    parse(include_file, output_sink);
+                }
+                break;
             default:
                 break;
         }

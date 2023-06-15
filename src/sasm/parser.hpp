@@ -11,8 +11,10 @@ namespace parse
 {
 
     enum TOKEN {
-        DIRECTIVE_T, OPCODE_T, NUMERIC_T,
-        PLAIN_T, STRING_T
+        OPCODE_T, NUMERIC_T,
+        PLAIN_T, STRING_T, INCLUDE_DIRECTIVE_T,
+        SECTION_DIRECTIVE_T, LABEL_DIRECTIVE_T,
+        NO_MATCH
     };
 
     struct Token {
