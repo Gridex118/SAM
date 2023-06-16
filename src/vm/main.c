@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 int main(int argc, char** argv){
+    setbuf(stdout, NULL);
     if (argc != 2){
         printf("Syntax: vm SOURCE\n");
         return -1;

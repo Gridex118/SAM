@@ -1,5 +1,7 @@
 .SECTION CODE
 
+push            inp_msg
+io              print               string
 io              input               integer
 push            5
 compare         ls
@@ -15,5 +17,6 @@ halt
 
 .SECTION MEM
 
+.VAR inp_msg "Enter a number: "
 .VAR less "5 is less than the input"
 .VAR greater "5 is greater than the input"
