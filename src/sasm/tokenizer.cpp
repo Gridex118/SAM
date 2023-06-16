@@ -16,6 +16,7 @@ inline TOKEN directive_type(std::string candidate) {
     if (candidate == "SECTION") return TOKEN::SECTION_DIRECTIVE_T;
     else if (candidate == "LABEL") return TOKEN::LABEL_DIRECTIVE_T;
     else if (candidate  == "INCLUDE") return TOKEN::INCLUDE_DIRECTIVE_T;
+    else if (candidate == "VAR") return TOKEN::VARIABLE_DIRECTIVE_T;
     else return TOKEN::NO_MATCH;
 }
 

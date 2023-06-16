@@ -36,11 +36,11 @@ Parser::Parser(char *source_name) {
 ParserOutputContainer* Parser::parse() {
     ParserOutputContainer *outputs = new ParserOutputContainer;
     parse(current_source_file_name, outputs);
-    replace_labels(outputs);
+    replace_labels_and_vars(outputs);
     return outputs;
 }
 
-void Parser::replace_labels(ParserOutputContainer* raw_output) {
+void Parser::replace_labels_and_vars(ParserOutputContainer* raw_output) {
     for (auto token_iterator = raw_output->begin(); token_iterator != raw_output->end(); ++token_iterator) {
         Token *token = *token_iterator;
         if (token->type == TOKEN::PLAIN_T) {
@@ -65,18 +65,38 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
                     token->type = NUMERIC_T;
                     token->int_value = PARAMETER_MAP[token->str_value];
                 }
-            case TOKEN::STRING_T: case TOKEN::NUMERIC_T:
-                // If its a PLAIN(and neither the label nor the include flag is set to 1), STRING, NUMERIC just add it to outputs
+                output_sink->push_back(token);
+                break;
+            case TOKEN::STRING_T:
+                /*              Dealing with variable indices
+                 * variable names when passed as parameters are to be substituted with the respective indices
+                 * Two characters cover one index
+                 * For even length string, index += length/2 + 1
+                 * For odd length string, index += (length + 1)/2
+                 */
+                {
+                    int length = (token->str_value).length();
+                    if (length%2 == 0) {
+                        var_index += (length/2)+1;
+                    } else {
+                        var_index += (length+1)/2;
+                    }
+                }
+                output_sink->push_back(token);
+                break;
+            case TOKEN::NUMERIC_T:
                 output_sink->push_back(token);
                 break;
             case TOKEN::OPCODE_T:
-                // If its an OPCODE, increment the instruction counter, and add the token to outputs
                 token->int_value = static_cast<int>(OPCODE_MAP[token->str_value]);
                 ++instruction_count;
                 output_sink->push_back(token);
                 break;
             case TOKEN::LABEL_DIRECTIVE_T:
                 data[token->str_value] = instruction_count - 1;
+                break;
+            case TOKEN::VARIABLE_DIRECTIVE_T:
+                data[token->str_value] = var_index;
                 break;
             case TOKEN::SECTION_DIRECTIVE_T:
                 if (token->str_value == "CODE") {

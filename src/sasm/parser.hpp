@@ -14,7 +14,7 @@ namespace parse
         OPCODE_T, NUMERIC_T,
         PLAIN_T, STRING_T, INCLUDE_DIRECTIVE_T,
         SECTION_DIRECTIVE_T, LABEL_DIRECTIVE_T,
-        NO_MATCH
+        VARIABLE_DIRECTIVE_T, NO_MATCH
     };
 
     struct Token {
@@ -50,14 +50,10 @@ namespace parse
         private:
             char *current_source_file_name;
             int instruction_count = 0;
-            struct {
-                unsigned int expecting_label : 1;
-                unsigned int expecting_include : 1;
-                unsigned int expecting_section : 1;
-            } flags { 0, 0 };
+            int var_index = 0;
             std::unordered_map<std::string, int> data;
             void parse(char *file_name, ParserOutputContainer*& output_sink);
-            void replace_labels(ParserOutputContainer *raw_output);
+            void replace_labels_and_vars(ParserOutputContainer *raw_output);
         public:
             ParserOutputContainer* parse();
             Parser(char *source_name);

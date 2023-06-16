@@ -4,10 +4,10 @@ io              input               integer
 push            5
 compare         ls
 jmp             cond                T
-push            0
+push            less
 jmp             uncond              END
 .LABEL T
-push            3
+push            greater
 .LABEL END
 io              print               string
 io              print_eseq          newline
@@ -15,5 +15,5 @@ halt
 
 .SECTION MEM
 
-"less"
-"greater"
+.VAR less "5 is less than the input"
+.VAR greater "5 is greater than the input"
