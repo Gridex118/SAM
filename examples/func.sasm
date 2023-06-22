@@ -1,0 +1,17 @@
+.SECTION CODE
+
+.LABEL MAIN
+push                10
+storem              var                 0
+push                5
+storem              var                 1
+funct               call                ADDITION
+halt
+
+.LABEL ADDITION
+loadm               var                 0
+loadm               var                 1
+arith               add
+io                  print               integer
+io                  print_eseq          newline
+funct               return              0

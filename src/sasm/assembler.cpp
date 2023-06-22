@@ -104,7 +104,6 @@ int SamAssembler::assemble() {
                 return -1;
         }
         if (!skip_write && instr_data.parameters_due == 0) write();
-        else { skip_write = false; };
     }
     return 0;
 }
