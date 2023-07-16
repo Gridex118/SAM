@@ -109,9 +109,14 @@ void Parser::parse(char *file_name, ParserOutputContainer*& output_sink) {
             case TOKEN::INCLUDE_DIRECTIVE_T:
                 {
                     std::string current_source_file(current_source_file_name);
+                    std::string full_include_file_path;
                     int slash_pos = (current_source_file).rfind('/');
-                    std::string current_directory = (current_source_file).substr(0, slash_pos);
-                    std::string full_include_file_path = current_directory + '/' + token->str_value;
+                    if (slash_pos != std::string::npos) {
+                        std::string current_directory = (current_source_file).substr(0, slash_pos);
+                        full_include_file_path = current_directory + '/' + token->str_value;
+                    } else {
+                        full_include_file_path = token->str_value;
+                    }
                     char include_file[1024];
                     strcpy(include_file, full_include_file_path.c_str());
                     parse(include_file, output_sink);

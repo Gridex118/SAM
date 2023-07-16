@@ -1,19 +1,19 @@
 .SECTION CODE
 
-push            inp_msg
-io              print               string
-io              input               integer
-push            5
-compare         ls
-jmp             cond                T
-push            less
-jmp             uncond              END
+                        push                    inp_msg
+                        io                      print                   string
+                        io                      input                   integer
+                        push                    5
+                        compare                 ls
+                        jmp                     cond                    T
+                        push                    less
+                        jmp                     uncond                  END
 .LABEL T
-push            greater
+                        push                    greater
 .LABEL END
-io              print               string
-io              print_eseq          newline
-halt
+                        io                      print                   string
+                        io                      print_eseq              newline
+                        halt
 
 .SECTION MEM
 
