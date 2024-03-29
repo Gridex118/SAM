@@ -29,7 +29,7 @@ inline unsigned short get_second_parameter_size(int opcode) {
         case OPCODE::BSHIFT:
             return 8;
             break;
-        case OPCODE::FUNCT:    case OPCODE::LOADM:   
+        case OPCODE::FUNCT:    case OPCODE::LOADM:
         case OPCODE::STOREM:   case OPCODE::JMP:
             return 11;
             break;

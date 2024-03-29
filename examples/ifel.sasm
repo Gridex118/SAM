@@ -3,12 +3,19 @@
                         push                    inp_msg
                         io                      print                   string
                         io                      input                   integer
+                        dup
+                        push                    5
+                        compare                 neql
+                        jmp                     cond                    A
+                        push                    equal
+                        jmp                     uncond                  END
+.LABEL A
                         push                    5
                         compare                 ls
-                        jmp                     cond                    T
+                        jmp                     cond                    B
                         push                    less
                         jmp                     uncond                  END
-.LABEL T
+.LABEL B
                         push                    greater
 .LABEL END
                         io                      print                   string
@@ -20,3 +27,4 @@
 .VAR inp_msg "Enter a number: "
 .VAR less "5 is less than the input"
 .VAR greater "5 is greater than the input"
+.VAR equal "Equal to 5"
