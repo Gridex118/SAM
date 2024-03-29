@@ -5,3 +5,6 @@
 .gdb*
 build/
 *ccls*
+.clj-kondo/
+.lsp/
+tags
